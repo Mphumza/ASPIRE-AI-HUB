@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # EmpowerHer Career Hub
 
 Empowering women through diverse job opportunities, skill-based matching, and professional growth tools that prioritize work-life balance and gender equality.
@@ -72,3 +73,6 @@ Add the firebase-config.js file in the src folder with your Firebase credentials
 
 npm start
 
+=======
+# ASPIRE-AI-HUB
+>>>>>>> 393938982d30193670493e0b11fc20cb9fef7dba
