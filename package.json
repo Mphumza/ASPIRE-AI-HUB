@@ -1,0 +1,26 @@
+{
+  "name": "empowerher-career-hub",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "vite": "^5.4.2"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.2.0",
+    "@tailwindcss/forms": "^0.5.7",
+    "daisyui": "^4.7.2",
+    "firebase": "^10.8.0",
+    "highlight.js": "^11.9.0",
+    "jspdf": "^2.5.2",
+    "markdown-it": "^14.0.0"
+  }
+}

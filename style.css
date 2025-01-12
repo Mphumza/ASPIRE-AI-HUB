@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+input, select, textarea {
+  @apply border-gray-300 rounded-md shadow-sm;
+}
+
+button {
+  @apply transition-colors duration-200;
+}
+
+.prose {
+  @apply max-w-none;
+}
+
+/* Modal animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fixed {
+  animation: fadeIn 0.2s ease-out;
+}
