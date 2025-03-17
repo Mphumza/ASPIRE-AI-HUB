@@ -1,4 +1,97 @@
 
 =======
-# ASPIRE-AI-HUB
->>>>>>> 393938982d30193670493e0b11fc20cb9fef7dba
+
+# Aspire AI Hub
+
+Aspire AI Hub is a web application designed to help users create AI-generated CVs and receive real-time job recommendations. The platform leverages the power of **Vite**, **JavaScript**, **Node.js**, **Tailwind CSS**, and **Gemini Pro AI**, while utilizing the **Adzuna API** for job listings.
+
+## Features
+
+- **AI-Powered CV Generation**: Users can generate optimized CVs based on their skills, experience, and job preferences using **Gemini Pro AI**.
+- **Real-Time Job Recommendations**: The platform fetches job listings in real-time using the **Adzuna API**, matching users with relevant opportunities.
+- **Fast & Efficient**: Built with **Vite** for optimized performance and a smooth developer experience.
+- **Modern UI**: Styled with **Tailwind CSS** for a responsive and sleek design.
+- **Server-Side Processing**: Uses **Node.js** for backend operations, including API handling and user data management.
+
+## Technologies Used
+
+- **Frontend**:
+  - Vite
+  - JavaScript (ES6+)
+  - Tailwind CSS
+
+- **Backend**:
+  - Node.js
+  - Express.js
+
+- **AI Integration**:
+  - Gemini Pro AI for CV generation
+
+- **Job API**:
+  - Adzuna API for fetching job listings
+
+## Installation
+
+### Prerequisites
+Ensure you have the following installed on your system:
+- **Node.js** (v16+)
+- **npm** or **yarn**
+
+### Clone the Repository
+```sh
+git clone https://github.com/Mphumza/aspire-ai-hub.git
+cd aspire-ai-hub
+```
+
+### Install Dependencies
+```sh
+npm install
+```
+
+## Usage
+
+### Start Development Server
+```sh
+npm run dev
+```
+
+### Build for Production
+```sh
+npm run build
+```
+
+### Run Backend Server
+```sh
+node server.js
+```
+
+## API Configuration
+
+1. **Adzuna API Key**: Register at [Adzuna](https://www.adzuna.com/) and get an API key.
+2. **Gemini Pro AI Key**: Obtain an API key from Google AI services.
+3. **Create a `.env` File**:
+```sh
+ADZUNA_API_KEY=your_adzuna_api_key
+GEMINI_PRO_API_KEY=your_gemini_ai_key
+```
+
+## Future Enhancements
+- **User Authentication**: Implement login/signup functionality.
+- **CV Export**: Allow users to download their CVs as PDFs.
+- **Job Alerts**: Enable email notifications for new job matches.
+- **Personalized Job Recommendations**: Use machine learning to enhance job matching.
+
+## Contributing
+Contributions are welcome! Please follow the guidelines below:
+1. Fork the repository.
+2. Create a new branch (`feature/your-feature`).
+3. Commit your changes.
+4. Submit a pull request.
+
+## License
+This project is licensed under the **MIT License**.
+
+## Contact
+For any inquiries or support, contact **mphumelelingema@icloud.com**.
+
+
