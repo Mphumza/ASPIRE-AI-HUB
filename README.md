@@ -95,6 +95,19 @@ This project is licensed under the **MIT License**.
 For any inquiries or support, contact **mphumelelingema@icloud.com**.
 
 
+![WhatsApp Image 2025-03-19 at 03 24 53_2b43ae02](https://github.com/user-attachments/assets/ac63e8f3-04ab-4074-965c-eb213e956181)
+
+![WhatsApp Image 2025-03-19 at 03 39 18_413388b6](https://github.com/user-attachments/assets/5cf12d50-854a-4435-ac1b-62503abbe843)
+
+![WhatsApp Image 2025-03-19 at 03 40 07_8291b86b](https://github.com/user-attachments/assets/7026762b-30bf-4569-b6d2-057130b64e8a)
+
+![WhatsApp Image 2025-03-19 at 03 38 38_3860c810](https://github.com/user-attachments/assets/0d9fa1a8-2c43-4d36-8df6-b875defb392b)
+
+
+
+
+
+
 
 link of the video of the web app> https://www.linkedin.com/posts/mphumeleli-ngema-76993022a_ai-webdevelopment-innovation-activity-7284498672799674368-GXv4?utm_source=share&utm_medium=member_ios&rcm=ACoAADlyQ0EB6sjuP9tggjsFo-hoxKfHF-1R3fA
 
