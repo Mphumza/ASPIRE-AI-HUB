@@ -3,153 +3,138 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aspire AI Hub</title>
+    
+    <!-- Primary Meta Tags -->
+    <title>Aspire AI Hub | AI-Powered CV Generator & Job Matching Platform</title>
+    <meta name="title" content="Aspire AI Hub | AI-Powered CV Generator & Job Matching Platform" />
+    <meta name="description" content="Transform your career with AI-powered CV generation and intelligent job matching. Create professional resumes in minutes and discover perfect job opportunities tailored to your skills." />
+    <meta name="keywords" content="AI CV generator, resume builder, job matching, career platform, professional CV, job search, AI career tools" />
+    <meta name="author" content="Aspire AI Hub" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://aspire-ai-hub.com/" />
+    <meta property="og:title" content="Aspire AI Hub | AI-Powered CV Generator & Job Matching" />
+    <meta property="og:description" content="Transform your career with AI-powered CV generation and intelligent job matching. Create professional resumes and discover perfect opportunities." />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:site_name" content="Aspire AI Hub" />
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://aspire-ai-hub.com/" />
+    <meta name="twitter:title" content="Aspire AI Hub | AI-Powered CV Generator & Job Matching" />
+    <meta name="twitter:description" content="Transform your career with AI-powered CV generation and intelligent job matching." />
+    <meta name="twitter:image" content="/og-image.png" />
 
-    <!-- Custom Styles -->
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    
+    <!-- Theme Color for Mobile Browsers -->
+    <meta name="theme-color" content="#7c3aed" />
+    <meta name="msapplication-TileColor" content="#7c3aed" />
+
+    <!-- Preconnect to External Domains for Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://api.adzuna.com" />
+    
+    <!-- DNS Prefetch -->
+    <dns-prefetch href="https://www.googleapis.com" />
+    <dns-prefetch href="https://firestore.googleapis.com" />
+
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" /></noscript>
+
+    <!-- Critical CSS - Inline for Fast First Paint -->
     <style>
-      /* Base Styles */
-      body {
-        font-family: 'Roboto', sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f7fafc;
-      }
-
-      .container {
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1rem;
-      }
-
-      /* Prose Styles */
-      .prose {
-        font-family: 'Roboto', sans-serif;
-        line-height: 1.6;
-        color: #333;
-        margin: 0;
-      }
-
-      .prose h1, .prose h2, .prose h3 {
-        color: #2d3748;
-        font-weight: bold;
-      }
-
-      .prose ul, .prose ol {
-        padding-left: 2rem;
-      }
-
-      .prose li {
-        margin-bottom: 1rem;
-      }
-
-      /* Button Styles */
-      .flex-1 {
-        flex: 1;
-      }
-
-      .bg-green-600 {
-        background-color: #38a169;
-      }
-
-      .bg-green-700 {
-        background-color: #2f855a;
-      }
-
-      .bg-purple-600 {
-        background-color: #6b46c1;
-      }
-
-      .bg-purple-700 {
-        background-color: #553c9a;
-      }
-
-      .text-white {
-        color: white;
-      }
-
-      .py-3 {
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-      }
-
-      .px-6 {
-        padding-left: 1.5rem;
-        padding-right: 1.5rem;
-      }
-
-      .rounded-lg {
-        border-radius: 0.5rem;
-      }
-
-      .hover\:bg-green-700:hover {
-        background-color: #2f855a;
-      }
-
-      .hover\:bg-purple-700:hover {
-        background-color: #553c9a;
-      }
-
-      .transition-colors {
-        transition: background-color 0.3s ease;
-      }
-
-      .mb-4 {
-        margin-bottom: 1rem;
-      }
-
-      .mb-6 {
-        margin-bottom: 1.5rem;
-      }
-
-      .text-center {
-        text-align: center;
-      }
-
-      .max-w-4xl {
-        max-width: 48rem;
-      }
-
-      .bg-white {
-        background-color: white;
-      }
-
-      .shadow-md {
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-
-      .space-x-4 {
-        margin-left: -1rem;
-        margin-right: -1rem;
-      }
-
-      .space-x-4 > * {
-        margin-left: 1rem;
-      }
-
-      .text-2xl {
-        font-size: 1.5rem;
-      }
-
-      .text-3xl {
-        font-size: 1.875rem;
-      }
-
-      .text-gray-800 {
-        color: #2d3748;
-      }
-
-      .text-gray-600 {
-        color: #718096;
-      }
+      /* Critical CSS for First Paint */
+      *,*::before,*::after{box-sizing:border-box}
+      html{-webkit-text-size-adjust:100%;line-height:1.5}
+      body{margin:0;min-height:100vh;font-family:'Outfit',system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);background-attachment:fixed}
+      
+      /* Loading Screen */
+      #loading-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);z-index:9999;transition:opacity 0.5s ease,visibility 0.5s ease}
+      #loading-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
+      .loader{width:60px;height:60px;border:4px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite}
+      @keyframes spin{to{transform:rotate(360deg)}}
+      .loading-text{color:#fff;font-size:1.25rem;margin-top:1.5rem;font-weight:600;letter-spacing:0.025em}
+      .loading-subtext{color:rgba(255,255,255,0.8);font-size:0.875rem;margin-top:0.5rem}
+      
+      /* App Container */
+      #app{opacity:0;transition:opacity 0.5s ease}
+      #app.loaded{opacity:1}
+      
+      /* Skeleton Loading */
+      .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+      @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
     </style>
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Aspire AI Hub",
+      "description": "AI-powered CV generator and job matching platform",
+      "url": "https://aspire-ai-hub.com",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "AI-Powered CV Generation",
+        "Intelligent Job Matching",
+        "Professional Resume Templates",
+        "Career Development Tools"
+      ]
+    }
+    </script>
   </head>
 
-  <body class="bg-gray-50">
-    <div id="app"></div>
+  <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" role="status" aria-label="Loading application">
+      <div class="loader" aria-hidden="true"></div>
+      <p class="loading-text">Aspire AI Hub</p>
+      <p class="loading-subtext">Preparing your career tools...</p>
+    </div>
+
+    <!-- Skip to Main Content (Accessibility) -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-primary-600 focus:rounded-lg">
+      Skip to main content
+    </a>
+
+    <!-- Main App Container -->
+    <div id="app" role="main" aria-label="Main application content"></div>
+
+    <!-- Main Script with Module Type -->
     <script type="module" src="/main.js"></script>
+
+    <!-- Hide Loading Screen After App Loads -->
+    <script>
+      window.addEventListener('load', function() {
+        requestAnimationFrame(function() {
+          setTimeout(function() {
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('app').classList.add('loaded');
+          }, 300);
+        });
+      });
+    </script>
+
+    <!-- No JavaScript Fallback -->
+    <noscript>
+      <div style="padding:2rem;text-align:center;background:#fff;margin:2rem;border-radius:1rem;">
+        <h1>JavaScript Required</h1>
+        <p>Please enable JavaScript to use Aspire AI Hub.</p>
+      </div>
+    </noscript>
   </body>
 </html>

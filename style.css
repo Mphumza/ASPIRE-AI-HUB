@@ -1,10 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  line-height: 1.6;
   font-weight: 400;
 }
 
@@ -12,26 +14,487 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: #f5f1eb;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Space Grotesk', 'Outfit', sans-serif;
 }
 
 input, select, textarea {
-  @apply border-gray-300 rounded-md shadow-sm;
+  @apply border-gray-300 rounded-xl shadow-sm;
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  @apply border-primary-400 ring-2 ring-primary-200;
+  transform: translateY(-2px);
 }
 
 button {
-  @apply transition-colors duration-200;
+  @apply transition-all duration-300;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+  transform: translateY(0);
 }
 
 .prose {
   @apply max-w-none;
 }
 
+/* Gradient backgrounds */
+.gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-accent {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.gradient-electric {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.gradient-sunset {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+/* Glassmorphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+.glass-dark {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
 /* Modal animation */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { 
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-content {
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .fixed {
-  animation: fadeIn 0.2s ease-out;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Neon glow effect */
+.neon-text {
+  text-shadow: 0 0 10px rgba(217, 70, 239, 0.8),
+               0 0 20px rgba(217, 70, 239, 0.6),
+               0 0 30px rgba(217, 70, 239, 0.4);
+}
+
+/* Animated gradient text */
+.gradient-text {
+  background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #667eea);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient 6s ease infinite;
+}
+
+/* Pulse animation for CTAs */
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(217, 70, 239, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 15px rgba(217, 70, 239, 0);
+  }
+}
+
+.pulse-btn {
+  animation: pulse 2s infinite;
+}
+
+/* ============================================
+   ACCESSIBILITY & UX IMPROVEMENTS
+   ============================================ */
+
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only:focus,
+.sr-only:active {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Focus visible styles for accessibility */
+*:focus-visible {
+  outline: 3px solid #d946ef;
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #d946ef;
+  outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .pulse-btn {
+    animation: none;
+  }
+  
+  .gradient-text {
+    animation: none;
+  }
+  
+  .animate-glow {
+    animation: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .glass {
+    background: white;
+    border: 2px solid black;
+  }
+  
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid white;
+  }
+  
+  button {
+    border: 2px solid currentColor;
+  }
+}
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+/* GPU acceleration for animations */
+.card-hover,
+.modal-content,
+button,
+.animate-glow,
+.pulse-btn {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Optimized scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Content visibility for off-screen content */
+.lazy-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* ============================================
+   LOADING & SKELETON STATES
+   ============================================ */
+
+/* Skeleton loading animation */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Disabled button state */
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+button:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Line clamp utility */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ============================================
+   RESPONSIVE IMPROVEMENTS
+   ============================================ */
+
+/* Touch-friendly targets on mobile */
+@media (max-width: 768px) {
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+  
+  .card-hover:hover {
+    transform: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .glass,
+  .glass-dark {
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .pulse-btn,
+  .animate-glow,
+  .gradient-text {
+    animation: none !important;
+  }
+  
+  button:not(.print-show),
+  #auth-buttons,
+  #loading-screen {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   CV DOCUMENT STYLES
+   ============================================ */
+
+/* CV Content Styling */
+.cv-content {
+  font-family: 'Georgia', 'Times New Roman', Times, serif;
+  color: #333;
+  line-height: 1.7;
+}
+
+.cv-content h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.cv-content h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #667eea;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 0.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.cv-content h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.cv-content p {
+  text-align: justify;
+  margin-bottom: 0.75rem;
+  line-height: 1.8;
+}
+
+.cv-content ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin-bottom: 1rem;
+}
+
+.cv-content ul li {
+  position: relative;
+  padding-left: 1.75rem;
+  margin-bottom: 0.6rem;
+  text-align: justify;
+  line-height: 1.7;
+}
+
+.cv-content ul li::before {
+  content: "▸";
+  position: absolute;
+  left: 0.25rem;
+  color: #667eea;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.cv-content strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.cv-content em {
+  font-style: italic;
+  color: #555;
+}
+
+/* CV Header styling */
+.cv-header {
+  border-bottom: 3px solid #667eea;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.cv-header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: 1px;
+}
+
+/* CV Body text alignment */
+.cv-body {
+  text-align: justify;
+  hyphens: auto;
+}
+
+.cv-body > * {
+  margin-bottom: 1.5rem;
+}
+
+/* Section dividers */
+.cv-content hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #667eea, transparent);
+  margin: 1.5rem 0;
+}
+
+/* Skill tags in CV */
+.cv-content .skill-tag {
+  display: inline-block;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8ecff 100%);
+  color: #4c5c96;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  margin: 0.25rem;
+  border: 1px solid #d0d8f0;
+}
+
+/* Experience entry styling */
+.cv-content .experience-entry {
+  margin-bottom: 1.5rem;
+  padding-left: 1rem;
+  border-left: 3px solid #e0e0e0;
+}
+
+.cv-content .experience-entry:hover {
+  border-left-color: #667eea;
+}
+
+.cv-content .job-title {
+  font-weight: 600;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.cv-content .company-name {
+  color: #667eea;
+  font-weight: 500;
+}
+
+.cv-content .date-range {
+  color: #777;
+  font-size: 0.9rem;
+  font-style: italic;
 }

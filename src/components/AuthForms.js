@@ -1,26 +1,34 @@
 export function LoginForm() {
   return `
-    <div class="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6">Login</h2>
-      <form id="login-form" class="space-y-4">
+    <div class="bg-white rounded-3xl p-10 max-w-md w-full mx-4 border border-gray-200 shadow-xl modal-content">
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-600 mb-4">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+        <p class="text-gray-600">Sign in to continue your journey</p>
+      </div>
+      <form id="login-form" class="space-y-5">
         <div>
-          <label for="login-email" class="block text-sm font-medium text-gray-700">Email</label>
+          <label for="login-email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
           <input type="email" id="login-email" required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+            class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base">
         </div>
         <div>
-          <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+          <label for="login-password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
           <input type="password" id="login-password" required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+            class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base">
         </div>
         <button type="submit" 
-          class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors">
-          Login
+          class="w-full bg-primary-600 hover:bg-primary-700 text-white py-4 px-6 rounded-xl font-bold hover:shadow-lg transition-all transform hover:scale-[1.02]">
+          Sign In
         </button>
       </form>
-      <p class="mt-4 text-center text-sm text-gray-600">
+      <p class="mt-6 text-center text-sm text-gray-600">
         Don't have an account? 
-        <button id="show-register" class="text-purple-600 hover:text-purple-700">Register</button>
+        <button id="show-register" class="text-primary-600 hover:text-primary-700 font-bold">Create one now</button>
       </p>
     </div>
   `;
@@ -28,32 +36,40 @@ export function LoginForm() {
 
 export function RegisterForm() {
   return `
-    <div class="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6">Register</h2>
-      <form id="register-form" class="space-y-4">
+    <div class="bg-white rounded-3xl p-10 max-w-md w-full mx-4 border border-gray-200 shadow-xl modal-content">
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-electric-600 mb-4">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Join Aspire AI</h2>
+        <p class="text-gray-600">Start your career transformation today</p>
+      </div>
+      <form id="register-form" class="space-y-5">
         <div>
-          <label for="register-email" class="block text-sm font-medium text-gray-700">Email</label>
+          <label for="register-email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
           <input type="email" id="register-email" required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+            class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base">
         </div>
         <div>
-          <label for="register-password" class="block text-sm font-medium text-gray-700">Password</label>
+          <label for="register-password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
           <input type="password" id="register-password" required minlength="6"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+            class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base">
         </div>
         <div>
-          <label for="register-confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+          <label for="register-confirm-password" class="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
           <input type="password" id="register-confirm-password" required minlength="6"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+            class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base">
         </div>
         <button type="submit" 
-          class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors">
-          Register
+          class="w-full bg-electric-600 hover:bg-electric-700 text-white py-4 px-6 rounded-xl font-bold hover:shadow-lg transition-all transform hover:scale-[1.02]">
+          Create Account
         </button>
       </form>
-      <p class="mt-4 text-center text-sm text-gray-600">
+      <p class="mt-6 text-center text-sm text-gray-600">
         Already have an account? 
-        <button id="show-login" class="text-purple-600 hover:text-purple-700">Login</button>
+        <button id="show-login" class="text-primary-600 hover:text-primary-700 font-bold">Sign in</button>
       </p>
     </div>
   `;
