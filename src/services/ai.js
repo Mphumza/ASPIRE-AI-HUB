@@ -1,9 +1,16 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI('AIzaSyDXKo8eTk4b4UsiYFaQLNaSmjiYZCj7SHc');
+const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+if (!apiKey) throw new Error('Google API key not found in environment variables');
+
+const genAI = new GoogleGenerativeAI(apiKey);
 
 export async function generateCVSuggestions(experience) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+  if (!experience || experience.trim().length === 0) {
+    throw new Error('Experience text is required for generating suggestions');
+  }
+
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   const prompt = `Given this professional experience, suggest improvements for a CV:
     ${experience}
     Focus on: 
@@ -12,11 +19,15 @@ export async function generateCVSuggestions(experience) {
     3. Industry-relevant keywords`;
   
   try {
+    console.log('Generating CV suggestions...');
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    return response.text();
+    const text = response.text();
+    console.log('CV suggestions generated successfully');
+    return text;
   } catch (error) {
     console.error('AI Generation Error:', error);
-    return 'Unable to generate suggestions at this time.';
+    console.error('Error details:', error.message, error.stack);
+    throw new Error(`Failed to generate CV suggestions: ${error.message}`);
   }
 }

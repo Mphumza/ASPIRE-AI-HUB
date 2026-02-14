@@ -1,17 +1,17 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getAnalytics } from 'firebase/analytics';
-import { getFirestore } from 'firebase/firestore'; // Import Firestore
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDoXsCL03Z7vde6sN1xJIJrDe3BuYSZqtM",
-  authDomain: "ai-cv-4bec1.firebaseapp.com",
-  databaseURL: "https://ai-cv-4bec1.firebaseio.com",
-  projectId: "ai-cv-4bec1",
-  storageBucket: "ai-cv-4bec1.appspot.com",
-  messagingSenderId: "714819597625",
-  appId: "1:714819597625:web:1aefa7ee9e2a31946ee4e8",
-  measurementId: "G-Q64CKYDNEK"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
@@ -20,4 +20,4 @@ const app = initializeApp(firebaseConfig);
 // Export Authentication, Analytics, and Firestore
 export const auth = getAuth(app);
 export const analytics = getAnalytics(app);
-export const db = getFirestore(app); // Initialize Firestore
+export const db = getFirestore(app);

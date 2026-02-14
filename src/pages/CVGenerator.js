@@ -1,50 +1,79 @@
 export function CVGenerator() {
   return `
-    <div class="min-h-screen bg-gray-50 py-8">
+    <div class="min-h-screen py-12">
       <div class="container mx-auto px-4">
-        <div class="max-w-4xl mx-auto">
-          <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
-            <h1 class="text-3xl font-bold text-purple-800 mb-4 text-center">Welcome to Aspire AI Hub</h1>
-            <p class="text-gray-600 text-center mb-8">
-              Our AI-powered platform is designed to help individuals showcase their talents, break barriers, and achieve their career goals. 
-              We focus on highlighting your unique strengths and matching you with opportunities that align with your aspirations.
+        <div class="max-w-5xl mx-auto">
+          <!-- Hero Section -->
+          <div class="bg-white rounded-3xl p-10 mb-8 text-center border border-gray-200 shadow-sm">
+            <div class="inline-block mb-4">
+              <div class="bg-primary-600 text-white px-6 py-2 rounded-full text-sm font-semibold">
+                🚀 AI-Powered Career Platform
+              </div>
+            </div>
+            <h1 class="text-5xl font-black mb-4 text-gray-900">
+              Welcome to Aspire AI Hub
+            </h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Unlock your potential with our AI-powered platform. Showcase your talents, break barriers, 
+              and land your dream career with personalized CVs that stand out. 
             </p>
+            <div class="flex justify-center gap-4 mt-6">
+              <div class="bg-gray-800 text-white px-4 py-2 rounded-xl">
+                <span class="font-bold">✨ AI-Generated</span>
+              </div>
+              <div class="bg-gray-800 text-white px-4 py-2 rounded-xl">
+                <span class="font-bold">🎯 Job Matching</span>
+              </div>
+              <div class="bg-gray-800 text-white px-4 py-2 rounded-xl">
+                <span class="font-bold">⚡ Instant Results</span>
+              </div>
+            </div>
           </div>
 
-          <form id="cv-form" class="bg-white rounded-lg shadow-lg p-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form id="cv-form" class="bg-white rounded-3xl p-8 border border-gray-200 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <!-- Personal Information -->
               <div class="col-span-2">
-                <label class="block text-lg font-medium text-gray-700 mb-2">Personal Information</label>
-                <div class="bg-purple-50 p-6 rounded-lg space-y-4">
+                <div class="flex items-center gap-3 mb-4">
+                  <div class="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center">
+                    <span class="text-white text-xl">👤</span>
+                  </div>
+                  <label class="block text-2xl font-bold text-gray-800">Personal Information</label>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-2xl space-y-5 border border-gray-200">
                   <div>
-                    <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
                     <input type="text" id="fullName" required
-                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-lg">
+                      class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base font-medium">
                   </div>
 
                   <div>
-                    <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                    <label for="address" class="block text-sm font-semibold text-gray-700 mb-2">Address</label>
                     <input type="text" id="address" required placeholder="Street, City, State, ZIP Code"
-                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-lg">
+                      class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base">
                   </div>
 
                   <div>
-                    <label for="contactInfo" class="block text-sm font-medium text-gray-700">Contact Information</label>
+                    <label for="contactInfo" class="block text-sm font-semibold text-gray-700 mb-2">Contact Information</label>
                     <input type="text" id="contactInfo" required placeholder="Email, Phone, LinkedIn"
-                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-lg">
+                      class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base">
                   </div>
                 </div>
               </div>
 
               <!-- Professional Profile -->
               <div class="col-span-2">
-                <label class="block text-lg font-medium text-gray-700 mb-2">Professional Profile</label>
-                <div class="bg-purple-50 p-6 rounded-lg space-y-4">
+                <div class="flex items-center gap-3 mb-4">
+                  <div class="w-10 h-10 rounded-xl bg-accent-600 flex items-center justify-center">
+                    <span class="text-white text-xl">💼</span>
+                  </div>
+                  <label class="block text-2xl font-bold text-gray-800">Professional Profile</label>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-2xl space-y-5 border border-gray-200">
                   <div>
-                    <label for="cvType" class="block text-sm font-medium text-gray-700">CV Type</label>
+                    <label for="cvType" class="block text-sm font-semibold text-gray-700 mb-2">CV Type</label>
                     <select id="cvType" required
-                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-lg">
+                      class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base font-medium">
                       <option value="professional">Professional</option>
                       <option value="executive">Executive Leadership</option>
                       <option value="technical">Technical Expert</option>
@@ -54,20 +83,25 @@ export function CVGenerator() {
                   </div>
 
                   <div>
-                    <label for="summary" class="block text-sm font-medium text-gray-700">Professional Summary</label>
-                    <textarea id="summary" rows="4" required placeholder="Share your career highlights and aspirations..."
-                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-lg"></textarea>
+                    <label for="summary" class="block text-sm font-semibold text-gray-700 mb-2">Professional Summary</label>
+                    <textarea id="summary" rows="5" required placeholder="Share your career highlights, key achievements, and aspirations..."
+                      class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base"></textarea>
                   </div>
                 </div>
               </div>
 
               <!-- Skills & Expertise -->
               <div class="col-span-2">
-                <label class="block text-lg font-medium text-gray-700 mb-2">Skills & Expertise</label>
-                <div class="bg-purple-50 p-6 rounded-lg">
-                  <label for="skills" class="block text-sm font-medium text-gray-700">Select Your Skills</label>
-                  <select id="skills" multiple required size="8"
-                    class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-lg">
+                <div class="flex items-center gap-3 mb-4">
+                  <div class="w-10 h-10 rounded-xl bg-electric-600 flex items-center justify-center">
+                    <span class="text-white text-xl">⚡</span>
+                  </div>
+                  <label class="block text-2xl font-bold text-gray-800">Skills & Expertise</label>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                  <label for="skills" class="block text-sm font-semibold text-gray-700 mb-2">Select Your Skills (Hold Ctrl/Cmd for multiple)</label>
+                  <select id="skills" multiple required size="10"
+                    class="block w-full px-5 py-3 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base">
                     <optgroup label="Leadership & Management">
                       <option value="team-leadership">Team Leadership</option>
                       <option value="project-management">Project Management</option>
@@ -149,51 +183,62 @@ export function CVGenerator() {
 
               <!-- Experience & Achievements -->
               <div class="col-span-2">
-                <label class="block text-lg font-medium text-gray-700 mb-2">Experience & Achievements</label>
-                <div class="bg-purple-50 p-6 rounded-lg space-y-4">
-                  <div>
-                    <label for="experience" class="block text-sm font-medium text-gray-700">Professional Experience</label>
-                    <textarea id="experience" rows="6" required placeholder="Detail your work history, leadership roles, and key achievements..."
-                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-lg"></textarea>
+                <div class="flex items-center gap-3 mb-4">
+                  <div class="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center">
+                    <span class="text-white text-xl">🏆</span>
                   </div>
-
+                  <label class="block text-2xl font-bold text-gray-800">Experience & Achievements</label>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-2xl space-y-5 border border-gray-200">
                   <div>
-                    <label for="achievements" class="block text-sm font-medium text-gray-700">Key Achievements</label>
-                    <textarea id="achievements" rows="4" placeholder="Share specific accomplishments, metrics, and impact..."
-                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-lg"></textarea>
+                    <label for="experience" class="block text-sm font-semibold text-gray-700 mb-2">Professional Experience</label>
+                    <textarea id="experience" rows="6" required placeholder="Detail your work history, leadership roles, and key achievements..."
+                      class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base"></textarea>
                   </div>
                 </div>
               </div>
 
               <!-- Education & Development -->
               <div class="col-span-2">
-                <label class="block text-lg font-medium text-gray-700 mb-2">Education & Development</label>
-                <div class="bg-purple-50 p-6 rounded-lg space-y-4">
+                <div class="flex items-center gap-3 mb-4">
+                  <div class="w-10 h-10 rounded-xl bg-electric-600 flex items-center justify-center">
+                    <span class="text-white text-xl">🎓</span>
+                  </div>
+                  <label class="block text-2xl font-bold text-gray-800">Education & Development</label>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-2xl space-y-5 border border-gray-200">
                   <div>
-                    <label for="education" class="block text-sm font-medium text-gray-700">Education</label>
-                    <textarea id="education" rows="3" required placeholder="List your educational background..."
-                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-lg"></textarea>
+                    <label for="education" class="block text-sm font-semibold text-gray-700 mb-2">Education</label>
+                    <textarea id="education" rows="4" required placeholder="List your educational background, degrees, and institutions..."
+                      class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base"></textarea>
                   </div>
 
                   <div>
-                    <label for="certifications" class="block text-sm font-medium text-gray-700">Certifications & Training</label>
-                    <textarea id="certifications" rows="2" placeholder="List relevant certifications and professional development..."
-                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-lg"></textarea>
+                    <label for="certifications" class="block text-sm font-semibold text-gray-700 mb-2">Certifications & Training</label>
+                    <textarea id="certifications" rows="3" placeholder="List relevant certifications and professional development..."
+                      class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base"></textarea>
                   </div>
 
                   <div>
-                    <label for="awards" class="block text-sm font-medium text-gray-700">Awards & Recognition</label>
-                    <textarea id="awards" rows="2" placeholder="Share awards, honors, and recognition..."
-                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-lg"></textarea>
+                    <label for="awards" class="block text-sm font-semibold text-gray-700 mb-2">Awards & Recognition</label>
+                    <textarea id="awards" rows="3" placeholder="Share awards, honors, and recognition..."
+                      class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base"></textarea>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Submit Button -->
-            <div class="mt-8">
+            <div class="mt-10">
               <button type="submit" 
-                class="w-full bg-purple-600 text-white py-4 px-6 rounded-lg text-lg font-semibold hover:bg-purple-700 transition duration-300">Generate CV</button>
+                class="w-full bg-primary-600 hover:bg-primary-700 text-white py-5 px-8 rounded-2xl text-xl font-bold hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300">
+                <span class="flex items-center justify-center gap-3">
+                  <span>✨ Generate My Professional CV</span>
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                  </svg>
+                </span>
+              </button>
             </div>
           </form>
         </div>
