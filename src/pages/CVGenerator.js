@@ -11,7 +11,7 @@ export function CVGenerator() {
               </div>
             </div>
             <h1 class="text-5xl font-black mb-4 text-gray-900">
-              Welcome to Aspire AI Hub
+              Welcome to Ispani AI
             </h1>
             <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Unlock your potential with our AI-powered platform. Showcase your talents, break barriers, 
@@ -224,6 +224,12 @@ export function CVGenerator() {
                     <textarea id="awards" rows="3" placeholder="Share awards, honors, and recognition..."
                       class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base"></textarea>
                   </div>
+ 
+                  <div>
+                    <label for="references" class="block text-sm font-semibold text-gray-700 mb-2">References</label>
+                    <textarea id="references" rows="3" placeholder="Provide references or leave blank to show 'Available upon request'"
+                      class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base"></textarea>
+                  </div>
                 </div>
               </div>
             </div>
@@ -233,7 +239,7 @@ export function CVGenerator() {
               <button type="submit" 
                 class="w-full bg-primary-600 hover:bg-primary-700 text-white py-5 px-8 rounded-2xl text-xl font-bold hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300">
                 <span class="flex items-center justify-center gap-3">
-                  <span>✨ Generate My Professional CV</span>
+                  <span> Generate My Professional CV</span>
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                   </svg>

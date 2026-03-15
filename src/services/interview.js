@@ -6,7 +6,7 @@ if (!apiKey) throw new Error('Google API key not found in environment variables'
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-const INTERVIEW_PROMPT = `As an expert interviewer focused on empowering women in the workplace, analyze this candidate's profile and generate thoughtful interview questions that:
+const INTERVIEW_PROMPT = `As an expert interviewer focused on empowering anyone in the workplace, analyze this candidate's profile and generate thoughtful interview questions that:
 
 1. Focus on leadership abilities and potential
 2. Explore problem-solving capabilities
