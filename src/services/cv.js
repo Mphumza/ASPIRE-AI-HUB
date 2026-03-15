@@ -3,9 +3,58 @@ import { auth } from '../config/firebase.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getRecommendedJobs } from './jobMatching.js';
 
+
 // Initialize Google Generative AI and Firestore
 const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 if (!apiKey) throw new Error('Google API key not found in environment variables');
+
+/**
+
+ * @param {string} markdown - 
+ * @returns {string} 
+ */
+export function convertMarkdownToHTML(markdown) {
+  let html = markdown
+
+    .replace(/```(?:markdown)?\s*\n?/gi, '')
+    .replace(/```/g, '')
+
+    .replace(/^#\s+.+?$/gm, '')
+    
+    .replace(/\[Your\s+\w+\]/g, '')
+    .replace(/\[Optional\]/gi, '')
+    
+    .replace(/^##\s+(.+?)$/gm, '<h2 class="text-xl font-bold text-blue-600 mt-6 mb-3 pb-2 border-b-2 border-blue-300">$1</h2>')
+   
+    .replace(/^###\s+(.+?)$/gm, '<h3 class="text-lg font-semibold text-gray-800 mt-4 mb-2">$1</h3>')
+    
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
+
+    .replace(/\*(.+?)\*/g, '<em class="italic text-gray-700">$1</em>')
+    
+    .replace(/^\s*[\*\-•]\s+(.+?)$/gm, '<li class="ml-6 mb-2 text-gray-700">$1</li>')
+   
+    .replace(/(<li class="ml-6 mb-2 text-gray-700">.+?<\/li>(?:\n<li class="ml-6 mb-2 text-gray-700">.+?<\/li>)*)/gs, '<ul class="list-disc list-inside mb-4">$1</ul>')
+  
+    .replace(/^---\s*$/gm, '')
+    
+    .split('\n')
+    .filter(line => line.trim() !== '')
+    .join('\n')
+   
+    .split('\n\n')
+    .map(para => {
+      para = para.trim();
+      if (!para) return '';
+    
+      if (para.startsWith('<')) return para;
+      
+      return `<p class="text-gray-700 leading-relaxed mb-3">${para}</p>`;
+    })
+    .join('\n');
+
+  return html;
+}
 
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
@@ -31,11 +80,6 @@ export async function generateCV(formData) {
 
     const prompt = `Generate a professional, well-structured CV in markdown format using this information:
 
-**Personal Details:**
-- Full Name: ${formData.fullName}
-- Address: ${formData.address || 'N/A'}
-- Contact: ${formData.contactInfo}
-
 **Career Information:**
 - CV Type: ${formData.cvType}
 - Field: ${formData.field}
@@ -48,16 +92,25 @@ export async function generateCV(formData) {
 - Education: ${formData.education}
 - Certifications: ${formData.certifications || 'N/A'}
 - Awards: ${formData.awards || 'N/A'}
+ - References: ${formData.references || 'N/A'}
+
+**CRITICAL - DO NOT INCLUDE:**
+- DO NOT include a "# [Your Name]" header or any single # header at the top
+- DO NOT include any name/contact information headers
+- DO NOT include placeholder text like "[Your Name]", "[Your Phone Number]", "[Your Email]", "[Your LinkedIn Profile URL]", "[Your Portfolio/Website]"
+- The header section will be added automatically by the system
+- START DIRECTLY with "## Professional Summary"
 
 **IMPORTANT FORMATTING REQUIREMENTS:**
-1. Use clear markdown headers (##) for each section
-2. Structure the CV in this exact order:
+1. Use ONLY double hash (##) for section headers - NO single hash (#) headers
+2. Structure the CV in this exact order, starting with these exact headers:
    ## Professional Summary
    ## Key Skills
    ## Professional Experience
    ## Education
    ## Certifications & Training (if applicable)
    ## Awards & Recognition (if applicable)
+  ## References (if applicable)
    ## Additional Information (if relevant)
 
 3. For the Professional Summary section:
@@ -92,6 +145,7 @@ Generate a polished, recruiter-ready CV that would stand out in today's competit
     const response = await result.response;
     const cvContent = response.text();
 
+
     console.log('CV generated successfully, fetching job matches...');
 
     // Fetch job recommendations only if CV is successfully generated
@@ -106,6 +160,7 @@ Generate a polished, recruiter-ready CV that would stand out in today's competit
 
     return {
       cv: cvContent,
+      formData,
       jobMatches,
     };
   } catch (error) {
@@ -140,9 +195,9 @@ export async function saveCV(cvData) {
 }
 
 /**
- * Helper function to validate form data before CV generation.
- * @param {Object} formData - User input data for CV generation.
- * @returns {boolean} - True if valid, otherwise throws an error.
+ *
+ * @param {Object} formData -
+ * @returns {boolean} -
  */
 export function validateFormData(formData) {
   if (!formData.fullName || !formData.contactInfo || !formData.summary) {

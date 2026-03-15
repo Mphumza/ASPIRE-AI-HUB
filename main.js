@@ -1,17 +1,21 @@
 import './style.css';
 import { auth } from './src/config/firebase.js';
+import { Landing } from './src/pages/Landing.js';
 import { CVGenerator } from './src/pages/CVGenerator.js';
 import { CVResult, downloadCVAsPDF } from './src/pages/CVResult.js';
 import { JobMatches } from './src/pages/JobMatches.js';
+import { InterviewPrep } from './src/pages/InterviewPrep.js';
 import { LoginForm, RegisterForm } from './src/components/AuthForms.js';
 import { handleSignIn, handleSignUp, handleSignOut } from './src/services/auth.js';
-import { generateCV } from './src/services/cv.js';
+import { generateCV, convertMarkdownToHTML } from './src/services/cv.js';
+import { generateInterviewQuestions, evaluateAnswer } from './src/services/interview.js';
 import MarkdownIt from 'markdown-it';
 
 const md = new MarkdownIt();
-let currentPage = 'cv-generator';
+let currentPage = 'landing';
 let generatedCV = null;
 let jobMatches = null;
+let interviewQuestions = '';
 let isLoading = false;
 
 // Loading overlay component
@@ -141,6 +145,7 @@ async function fetchJobs(jobType = 'software developer') {
 // Render the current page
 function renderPage() {
   const app = document.getElementById('app');
+  const showAuthButtons = currentPage !== 'cv-generator';
   const header = `
     <header class="glass-dark backdrop-blur-md sticky top-0 z-50 border-b border-white/20">
       <div class="container mx-auto px-6 py-4">
@@ -151,15 +156,17 @@ function renderPage() {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
               </svg>
             </div>
-            <h1 class="text-2xl font-bold text-white neon-text">Aspire AI Hub</h1>
+            <h1 class="text-2xl font-bold text-white neon-text">Ispani AI</h1>
           </div>
           <div id="auth-buttons" class="flex items-center space-x-3">
-            <button id="login" class="glass px-6 py-2.5 rounded-xl text-primary-700 font-semibold hover:bg-white transition-all">
-              Login
-            </button>
-            <button id="signup" class="bg-gradient-to-r from-primary-500 via-primary-600 to-accent-500 text-white px-6 py-2.5 rounded-xl font-semibold pulse-btn">
-              Sign Up
-            </button>
+            ${showAuthButtons ? `
+              <button id="login" class="glass px-6 py-2.5 rounded-xl text-primary-700 font-semibold hover:bg-white transition-all">
+                Login
+              </button>
+              <button id="signup" class="bg-gradient-to-r from-primary-500 via-primary-600 to-accent-500 text-white px-6 py-2.5 rounded-xl font-semibold pulse-btn">
+                Sign Up
+              </button>
+            ` : ''}
           </div>
         </div>
       </div>
@@ -168,6 +175,9 @@ function renderPage() {
 
   let content;
   switch (currentPage) {
+    case 'landing':
+      content = Landing();
+      break;
     case 'cv-generator':
       content = CVGenerator();
       break;
@@ -176,6 +186,9 @@ function renderPage() {
       break;
     case 'job-matches':
       content = JobMatches({ jobs: jobMatches });
+      break;
+    case 'interview-prep':
+      content = InterviewPrep({ questions: interviewQuestions });
       break;
     default:
       content = CVGenerator();
@@ -206,6 +219,8 @@ function initializeEventListeners() {
           await handleSignIn(email, password);
           modal.remove();
           showToast('Welcome back!', 'success');
+          currentPage = 'cv-generator';
+          renderPage();
         } catch (error) {
           showToast(error.message, 'error');
           submitBtn.disabled = false;
@@ -242,6 +257,8 @@ function initializeEventListeners() {
           await handleSignUp(email, password);
           modal.remove();
           showToast('Account created successfully!', 'success');
+          currentPage = 'cv-generator';
+          renderPage();
         } catch (error) {
           showToast(error.message, 'error');
           submitBtn.disabled = false;
@@ -292,12 +309,13 @@ function initializeEventListeners() {
           education: cvForm.querySelector('#education').value,
           certifications: cvForm.querySelector('#certifications').value,
           awards: cvForm.querySelector('#awards').value,
+          references: cvForm.querySelector('#references')?.value || '',
         };
 
         const result = await generateCV(formData);
         generatedCV = {
           markdown: result.cv,
-          html: md.render(result.cv),
+          html: convertMarkdownToHTML(result.cv),
           formData,
         };
         
@@ -325,6 +343,30 @@ function initializeEventListeners() {
     viewMatchesBtn.addEventListener('click', () => {
       currentPage = 'job-matches';
       renderPage();
+    });
+  }
+
+  const practiceBtn = document.getElementById('practice-interview');
+  if (practiceBtn) {
+    practiceBtn.addEventListener('click', async () => {
+      if (!generatedCV || !generatedCV.formData) {
+        showToast('Generate a CV first to get tailored questions', 'error');
+        return;
+      }
+
+      showLoadingOverlay('Generating Interview Questions', 'AI is creating tailored questions...');
+      try {
+        const profile = generatedCV.formData;
+        const result = await generateInterviewQuestions(profile);
+        interviewQuestions = result || 'No questions generated';
+        hideLoadingOverlay();
+        showToast('Interview questions are ready', 'success');
+        currentPage = 'interview-prep';
+        renderPage();
+      } catch (err) {
+        hideLoadingOverlay();
+        showToast('Error generating interview questions: ' + (err.message || err), 'error');
+      }
     });
   }
 
@@ -369,6 +411,35 @@ function initializeEventListeners() {
       renderPage();
     });
   }
+
+  // global function used by InterviewPrep template to submit answers
+  window.submitAnswer = async function(index) {
+    const textarea = document.getElementById(`answer-${index}`);
+    const answer = textarea?.value?.trim();
+    if (!answer) {
+      showToast('Please type your answer before requesting feedback', 'warning');
+      return;
+    }
+
+    const sections = (interviewQuestions || '').split('\n\n');
+    const section = sections[index] || '';
+    const firstLine = (section.split('\n')[0] || '').replace(/^\s*\d+\.?\s*/, '').trim();
+
+    showLoadingOverlay('Evaluating answer', 'AI is providing feedback...');
+    try {
+      const feedback = await evaluateAnswer(firstLine, answer);
+      const feedbackWrapper = document.getElementById(`feedback-${index}`);
+      if (feedbackWrapper) {
+        feedbackWrapper.classList.remove('hidden');
+        const inner = feedbackWrapper.querySelector('div');
+        if (inner) inner.innerHTML = feedback;
+      }
+      hideLoadingOverlay();
+    } catch (err) {
+      hideLoadingOverlay();
+      showToast('Error evaluating answer: ' + (err.message || err), 'error');
+    }
+  };
 }
 
 // Initialize the app
@@ -381,8 +452,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (user) {
       authButtons.innerHTML = `
         <div class="flex items-center space-x-4">
-          <span class="text-white glass-dark px-4 py-2 rounded-xl border border-white/30">✨ ${user.email}</span>
-          <button id="logout" class="glass px-6 py-2.5 rounded-xl text-white font-semibold hover:bg-white/20 transition-all">
+          <span class="text-white glass-dark px-4 py-2 rounded-xl border border-white/30">
+            <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-6 h-6 mr-2 text-purple-900 align-middle" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="2.2" />
+              <path d="M5.5 18.8C6.5 15.8 9 14 12 14C15 14 17.5 15.8 18.5 18.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+            </svg>
+            ${user.email}
+          </span>
+          <button id="logout" class="glass px-6 py-2.5 rounded-xl text-gray-400 font-semibold hover:bg-white/20 transition-all">
             Logout
           </button>
         </div>
