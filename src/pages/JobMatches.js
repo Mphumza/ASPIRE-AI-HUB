@@ -9,7 +9,14 @@ export function JobMatches({ jobs }) {
               <span class="text-4xl">💼</span>
             </div>
             <h1 class="text-3xl font-bold text-gray-800 mb-4">No Job Matches Yet</h1>
-            <p class="text-gray-600 text-lg">Generate your CV first to discover amazing opportunities!</p>
+            <p class="text-gray-600 text-lg mb-6">Generate your CV first to discover amazing opportunities!</p>
+            <button id="back-to-cv" 
+              class="bg-gray-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-700 transition-all flex items-center justify-center gap-2 mx-auto">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+              <span>Back to CV</span>
+            </button>
           </div>
         </div>
       </div>
