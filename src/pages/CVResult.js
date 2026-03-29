@@ -14,6 +14,7 @@ function formatCVContent(html, formData) {
         
         <!-- Contact Info -->
           <div class="flex flex-wrap justify-center gap-4 mt-2 text-sm text-gray-700 cv-contact-info">
+          <span class="flex items-center gap-1">
           ${formData?.contactInfo ? `<span class="flex items-center gap-1"> Contact: ${formData.contactInfo}</span>` : ''}
           ${formData?.address ? `<span class="flex items-center gap-1"> Location: ${formData.address}</span>` : ''}
         </div>
