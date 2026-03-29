@@ -9,8 +9,8 @@ const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 // Match Adzuna "what" search to profile field (better than raw select value)
 const FIELD_KEYWORDS = {
   engineering: 'engineering engineer',
-  'computer-science': 'software developer IT technology programming',
-  'creative-arts': 'creative design media arts',
+  computer_science: 'software developer IT technology programming',
+  creative_arts: 'creative design media arts',
   teaching: 'teacher education teaching',
   admin: 'administration office administrative',
   healthcare: 'healthcare medical',
@@ -115,7 +115,7 @@ export function filterJobsForIctProfile(profile, jobs) {
     const desc = (job.description || '').slice(0, 900);
     const blob = `${title} ${desc}`;
     if (badTitle.test(title)) return false;
-    return blobLooksLikeTechRole(blob);
+    return blobLooksLikeTechRole(blob) || /\b(it|tech|system|support|analyst|graduate)\b/i.test(blob);;
   });
 }
 
@@ -169,7 +169,7 @@ export function buildAdzunaSearchQuery(profile, options = {}) {
   // For ICT profiles, lead with role-specific terms (reduces junk matches)
   const ictBoost =
     profile.field === 'computer-science'
-      ? 'software developer programming IT applications graduate junior'
+      ? 'IT software tech graduate developer support analyst'
       : '';
 
   const chunks = [
@@ -326,12 +326,13 @@ export async function getRecommendedJobs(profile) {
   try {
     const primaryQuery = buildAdzunaSearchQuery(profile);
     let jobs = await fetchAdzunaJobs(primaryQuery, 35);
-    jobs = filterJobsForIctProfile(profile, jobs);
+    const filtered = filterJobsForIctProfile(profile, jobs);
+    jobs = filtered.length >= 5 ? filtered : jobs;
 
     if (jobs.length < 6) {
       const broadQuery = buildAdzunaSearchQuery(profile, { broad: true });
       const extra = await fetchAdzunaJobs(broadQuery, 25);
-      jobs = dedupeJobsByUrl([...jobs, ...filterJobsForIctProfile(profile, extra)]);
+      jobs = dedupeJobsByUrl([...jobs, ...extra]);
     }
 
     if (jobs.length < 6 && isIctSoftwareCandidate(profile)) {
@@ -339,7 +340,7 @@ export async function getRecommendedJobs(profile) {
         'software developer IT graduate junior programmer applications development',
         35,
       );
-      jobs = dedupeJobsByUrl([...jobs, ...filterJobsForIctProfile(profile, itFallback)]);
+      jobs = dedupeJobsByUrl([...jobs, ...itFallback]);
     }
 
     if (!jobs.length) {
@@ -349,9 +350,7 @@ export async function getRecommendedJobs(profile) {
           : buildAdzunaSearchQuery(profile, { broad: true }) || 'jobs',
         20,
       );
-      jobs = isIctSoftwareCandidate(profile)
-        ? filterJobsForIctProfile(profile, lastResort)
-        : lastResort;
+      jobs = lastResort;
     }
 
     // Cap how many we send to Gemini (cost + latency)
