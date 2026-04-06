@@ -20,13 +20,58 @@ const INTERVIEW_PROMPT = `As an expert interviewer focused on empowering anyone 
 Candidate Profile:
 {profile}
 
-Generate 5 strategic interview questions with:
-1. The question itself
-2. The intent behind asking it
-3. What makes a strong answer
-4. Follow-up questions if needed
+Use this exact structure for EACH of the 5 questions (repeat 5 times):
 
-Format in clear markdown sections.`;
+---QUESTION---
+### Question
+(one sentence)
+
+### Why interviewers ask
+(2 short bullets)
+
+### What a strong answer includes
+(2–3 bullets)
+
+### Optional follow-ups
+(0–2 bullets)
+
+Keep total output under ~600 words. No long essays.`;
+
+export function splitInterviewQuestionSections(text) {
+  const normalized = (text || '').trim();
+  if (!normalized) return [];
+  if (normalized.includes('---QUESTION---')) {
+    return normalized
+      .split(/---QUESTION---/g)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  return [normalized].split(/\n\n+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+ export function extractQuestionForEvaluation(section) {
+  if (!section) return '';
+  const block = section.match(/###\s*Question\s*\n+([\s\S]*?)(?=\n###\s|$)/i);
+  if (block) {
+    const firstLine = block[1]
+      .split('\n')
+      .map((l) => l.trim())
+      .find((l) => l.length > 0);
+    if (firstLine) {
+      return firstLine
+        .replace(/^\*+\s*|\s*\*+$/g, '')
+        .replace(/^["']|["']$/g, '')
+        .trim();
+    }
+  }
+  const line = section
+    .split('\n')
+    .map((l) => l.trim())
+    .find((l) => l && !l.startsWith('#'));
+  return (line || '').replace(/^\d+\.\s*/, '').trim();
+}
+
 
 export async function generateInterviewQuestions(profile) {
   try {

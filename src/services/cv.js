@@ -55,7 +55,6 @@ export function convertMarkdownToHTML(markdown) {
 
   return html;
 }
-
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 const db = getFirestore();
@@ -90,9 +89,9 @@ export async function generateCV(formData) {
 - Skills: ${formData.skills.join(', ')}
 - Experience: ${formData.experience}
 - Education: ${formData.education}
-- Certifications: ${formData.certifications || 'N/A'}
-- Awards: ${formData.awards || 'N/A'}
- - References: ${formData.references || 'N/A'}
+- Certifications: ${formData.certifications || ''}
+- Awards: ${formData.awards || ''}
+ - References: ${formData.references || ''}
 
 **CRITICAL - DO NOT INCLUDE:**
 - DO NOT include a "# [Your Name]" header or any single # header at the top
@@ -100,6 +99,11 @@ export async function generateCV(formData) {
 - DO NOT include placeholder text like "[Your Name]", "[Your Phone Number]", "[Your Email]", "[Your LinkedIn Profile URL]", "[Your Portfolio/Website]"
 - The header section will be added automatically by the system
 - START DIRECTLY with "## Professional Summary"
+
+**VERY IMPORTANT:**
+- ONLY include sections if they contain real, meaningful content
+- If a section has no data or is empty, DO NOT include that section at all
+- DO NOT write "N/A" anywhere in the CV
 
 **IMPORTANT FORMATTING REQUIREMENTS:**
 1. Use ONLY double hash (##) for section headers - NO single hash (#) headers
@@ -148,15 +152,16 @@ Generate a polished, recruiter-ready CV that would stand out in today's competit
 
     console.log('CV generated successfully, fetching job matches...');
 
-    // Fetch job recommendations only if CV is successfully generated
-    const jobMatches = await getRecommendedJobs({
-      summary: formData.summary,
-      skills: formData.skills,
-      experience: formData.experience,
-      jobType: formData.jobType,
-    });
-
-    console.log('CV generation completed with', jobMatches.length, 'job matches');
+    let jobMatches = [];
+    try {
+      jobMatches = await getRecommendedJobs({
+        ...formData,
+        generatedCvMarkdown: cvContent,
+      });
+      console.log('CV generation completed with', jobMatches.length, 'job matches');
+    } catch (jobErr) {
+      console.warn('Job recommendations skipped:', jobErr?.message || jobErr);
+    }
 
     return {
       cv: cvContent,
