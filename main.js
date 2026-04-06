@@ -8,7 +8,12 @@ import { InterviewPrep } from './src/pages/InterviewPrep.js';
 import { LoginForm, RegisterForm } from './src/components/AuthForms.js';
 import { handleSignIn, handleSignUp, handleSignOut } from './src/services/auth.js';
 import { generateCV, convertMarkdownToHTML } from './src/services/cv.js';
-import { generateInterviewQuestions, evaluateAnswer } from './src/services/interview.js';
+import {
+  generateInterviewQuestions,
+  evaluateAnswer,
+  splitInterviewQuestionSections,
+  extractQuestionForEvaluation,
+} from './src/services/interview.js';
 import MarkdownIt from 'markdown-it';
 
 const md = new MarkdownIt();
@@ -106,40 +111,6 @@ function showAuthModal(content) {
   });
 
   return modal;
-}
-
-// Fetch job data based on job type
-async function fetchJobs(jobType = 'software developer') {
-  const APP_ID = '50f33641';
-  const API_KEY = '41178ebea8323e7b56402fad09f73ef4';
-  const API_URL = `https://api.adzuna.com/v1/api/jobs/za/search/1?app_id=${APP_ID}&app_key=${API_KEY}&results_per_page=10&what=${encodeURIComponent(jobType)}`;
-
-  try {
-    const response = await fetch(API_URL);
-
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} - ${response.statusText}`);
-    }
-
-    const data = await response.json();
-
-    if (!data.results || data.results.length === 0) {
-      console.warn('No jobs found for the given job type.');
-      return [];
-    }
-
-    return data.results.map((job) => ({
-      title: job.title,
-      company: job.company?.display_name || 'Unknown',
-      location: job.location?.display_name || 'Location not provided',
-      description: job.description,
-      tags: job.category?.label ? job.category.label.split(', ') : [],
-      url: job.redirect_url,
-    }));
-  } catch (error) {
-    console.error('Error fetching jobs:', error.message);
-    return [];
-  }
 }
 
 // Render the current page
@@ -303,6 +274,7 @@ function initializeEventListeners() {
           contactInfo: cvForm.querySelector('#contactInfo').value,
           jobType: cvForm.querySelector('#jobType')?.value || null,
           cvType: cvForm.querySelector('#cvType').value,
+          field: cvForm.querySelector('#field')?.value || '',
           summary: cvForm.querySelector('#summary').value,
           skills: Array.from(cvForm.querySelector('#skills').selectedOptions).map(opt => opt.value),
           experience: cvForm.querySelector('#experience').value,
@@ -310,17 +282,21 @@ function initializeEventListeners() {
           certifications: cvForm.querySelector('#certifications').value,
           awards: cvForm.querySelector('#awards').value,
           references: cvForm.querySelector('#references')?.value || '',
+          additionalDetails: cvForm.querySelector('#additionalDetails')?.value || '',
         };
 
         const result = await generateCV(formData);
+        const generatedHtml = convertMarkdownToHTML(result.cv);
         generatedCV = {
           markdown: result.cv,
-          html: convertMarkdownToHTML(result.cv),
+          html: generatedHtml,
+          originalHtml: generatedHtml,
+          editedHtml: null,
           formData,
         };
-        
-        // Fetch jobs in parallel for better performance
-        jobMatches = await fetchJobs(formData.cvType);
+
+        // Ranked using full CV + profile in jobMatching (not only cvType)
+        jobMatches = Array.isArray(result.jobMatches) ? result.jobMatches : [];
 
         hideLoadingOverlay();
         showToast('CV generated successfully!', 'success');
@@ -367,6 +343,97 @@ function initializeEventListeners() {
         hideLoadingOverlay();
         showToast('Error generating interview questions: ' + (err.message || err), 'error');
       }
+    });
+  }
+
+  // CV editing toolbar
+  function applyInlineFormatting(tagName) {
+    const editable = document.getElementById('editable-cv');
+    if (!editable) return;
+
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+
+    const range = sel.getRangeAt(0);
+    if (range.collapsed) return;
+
+    if (!editable.contains(range.commonAncestorContainer)) return;
+
+    const wrapper = document.createElement(tagName);
+    wrapper.appendChild(range.extractContents());
+    range.insertNode(wrapper);
+
+    // Keep inline structure and avoid block-level wrapping in header/body
+    editable.normalize();
+
+    const newRange = document.createRange();
+    newRange.selectNodeContents(wrapper);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+  }
+
+  const boldBtn = document.getElementById('format-bold');
+  if (boldBtn) {
+    boldBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      applyInlineFormatting('strong');
+    });
+  }
+
+  const italicBtn = document.getElementById('format-italic');
+  if (italicBtn) {
+    italicBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      applyInlineFormatting('em');
+    });
+  }
+
+  const underlineBtn = document.getElementById('format-underline');
+  if (underlineBtn) {
+    underlineBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      applyInlineFormatting('u');
+    });
+  }
+
+  const saveCvBtn = document.getElementById('save-cv');
+  if (saveCvBtn) {
+    saveCvBtn.addEventListener('click', () => {
+      const editable = document.getElementById('editable-cv');
+      if (!editable) {
+        showToast('Editable CV region not found', 'error');
+        return;
+      }
+
+      const html = editable.innerHTML;
+      if (!generatedCV) {
+        showToast('No CV loaded to save', 'error');
+        return;
+      }
+
+      generatedCV.editedHtml = html;
+      generatedCV.html = html;
+
+      showToast('CV changes saved successfully', 'success');
+      currentPage = 'cv-result';
+      renderPage();
+    });
+  }
+
+  const resetCvBtn = document.getElementById('reset-cv');
+  if (resetCvBtn) {
+    resetCvBtn.addEventListener('click', () => {
+      if (!generatedCV) {
+        showToast('No CV loaded to reset', 'error');
+        return;
+      }
+
+      generatedCV.editedHtml = null;
+      generatedCV.html = generatedCV.originalHtml || generatedCV.html;
+
+      showToast('CV reset to AI-generated version', 'info');
+      currentPage = 'cv-result';
+      renderPage();
     });
   }
 
@@ -421,18 +488,18 @@ function initializeEventListeners() {
       return;
     }
 
-    const sections = (interviewQuestions || '').split('\n\n');
+    const sections = splitInterviewQuestionSections(interviewQuestions || '');
     const section = sections[index] || '';
-    const firstLine = (section.split('\n')[0] || '').replace(/^\s*\d+\.?\s*/, '').trim();
+    const questionText = extractQuestionForEvaluation(section);
 
     showLoadingOverlay('Evaluating answer', 'AI is providing feedback...');
     try {
-      const feedback = await evaluateAnswer(firstLine, answer);
+      const feedback = await evaluateAnswer(questionText || section.slice(0, 500), answer);
       const feedbackWrapper = document.getElementById(`feedback-${index}`);
       if (feedbackWrapper) {
         feedbackWrapper.classList.remove('hidden');
         const inner = feedbackWrapper.querySelector('div');
-        if (inner) inner.innerHTML = feedback;
+        if (inner) inner.innerHTML = md.render(feedback || '');
       }
       hideLoadingOverlay();
     } catch (err) {
