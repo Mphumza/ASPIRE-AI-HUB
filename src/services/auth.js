@@ -20,7 +20,16 @@ function getAuthErrorMessage(error) {
       return 'No account found with this email. Please register first.';
     case 'auth/wrong-password':
       return 'Incorrect password. Please try again.';
+    case 'auth/invalid-credential':
+      return 'Invalid email or password. Please check your credentials and try again.';
+    case 'auth/too-many-requests':
+      return 'Too many failed attempts. Please try again later.';
+    case 'auth/user-disabled':
+      return 'This account has been disabled. Please contact support.';
+    case 'auth/network-request-failed':
+      return 'Network error. Please check your internet connection.';
     default:
+      console.error('Unhandled auth error code:', error.code);
       return 'An error occurred. Please try again later.';
   }
 }
@@ -31,10 +40,19 @@ export async function handleSignUp(email, password) {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Save user info to Firestore
+    // Save user info to Firestore with usage tracking
     await setDoc(doc(db, 'users', user.uid), {
       email: user.email,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
+      usage: {
+        cvGenerations: 0,
+        interviewSessions: 0,
+      },
+      subscription: {
+        isActive: false,
+        subscribedAt: null,
+        expiresAt: null,
+      },
     });
 
     return user; // Successfully created a user and saved to Firestore

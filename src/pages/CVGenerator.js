@@ -234,12 +234,21 @@ export function CVGenerator() {
               </div>
             </div>
 
-            <!-- Submit Button -->
-            <div class="mt-10">
+            <!-- Submit and Cancel Buttons -->
+            <div class="mt-10 flex flex-col sm:flex-row gap-4">
+              <button type="button" id="cancel-cv"
+                class="sm:w-auto px-8 py-5 rounded-2xl text-lg font-semibold border-2 border-gray-300 text-gray-600 hover:bg-gray-100 hover:border-gray-400 transition-all duration-300">
+                <span class="flex items-center justify-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                  </svg>
+                  <span>Cancel</span>
+                </span>
+              </button>
               <button type="submit" 
-                class="w-full bg-primary-600 hover:bg-primary-700 text-white py-5 px-8 rounded-2xl text-xl font-bold hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300">
+                class="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-5 px-8 rounded-2xl text-xl font-bold hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300">
                 <span class="flex items-center justify-center gap-3">
-                  <span> Generate My Professional CV</span>
+                  <span>Generate My Professional CV</span>
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                   </svg>

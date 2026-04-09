@@ -1,6 +1,8 @@
 import './style.css';
 import { auth } from './src/config/firebase.js';
 import { Landing } from './src/pages/Landing.js';
+import { Dashboard } from './src/pages/Dashboard.js';
+import { AccountSettings } from './src/pages/AccountSettings.js';
 import { CVGenerator } from './src/pages/CVGenerator.js';
 import { CVResult, downloadCVAsPDF } from './src/pages/CVResult.js';
 import { JobMatches } from './src/pages/JobMatches.js';
@@ -14,6 +16,17 @@ import {
   splitInterviewQuestionSections,
   extractQuestionForEvaluation,
 } from './src/services/interview.js';
+import {
+  canGenerateCV,
+  canUseInterviewCoaching,
+  incrementCVGeneration,
+  incrementInterviewSession,
+  getPaymentLink,
+  getUserUsage,
+  hasActiveSubscription,
+  cancelSubscription,
+  updateUserProfile,
+} from './src/services/subscription.js';
 import MarkdownIt from 'markdown-it';
 
 const md = new MarkdownIt();
@@ -22,6 +35,8 @@ let generatedCV = null;
 let jobMatches = null;
 let interviewQuestions = '';
 let isLoading = false;
+let currentUserData = null;
+let authInitialized = false;
 
 // Loading overlay component
 function showLoadingOverlay(message = 'Processing...', subMessage = '') {
@@ -113,31 +128,132 @@ function showAuthModal(content) {
   return modal;
 }
 
+// Subscription paywall modal
+function showSubscriptionModal(feature = 'CV generation') {
+  const paymentLink = getPaymentLink();
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50';
+  modal.innerHTML = `
+    <div class="glass rounded-3xl p-8 max-w-md mx-4 border-2 border-white/30 text-center">
+      <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-800 mb-3">Upgrade to Premium</h2>
+      <p class="text-gray-600 mb-6">
+        You've used your free ${feature} trial. Subscribe to unlock unlimited access to all premium features!
+      </p>
+      
+      <div class="bg-gradient-to-br from-primary-50 to-accent-50 rounded-2xl p-6 mb-6 border border-primary-200">
+        <div class="text-3xl font-black text-primary-600 mb-2">R50<span class="text-lg font-normal text-gray-500">/month</span></div>
+        <ul class="text-left text-gray-700 space-y-2">
+          <li class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            Unlimited CV generations
+          </li>
+          <li class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            Unlimited interview coaching
+          </li>
+          <li class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            Free job search (always included)
+          </li>
+          <li class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            Priority AI processing
+          </li>
+        </ul>
+      </div>
+      
+      <div class="flex flex-col gap-3">
+        <a href="${paymentLink}" target="_blank" rel="noopener noreferrer"
+          class="w-full bg-gradient-to-r from-primary-500 via-primary-600 to-accent-500 text-white py-4 px-8 rounded-xl font-bold text-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 inline-block">
+          Subscribe Now
+        </a>
+        <button id="close-subscription-modal" class="text-gray-500 hover:text-gray-700 font-medium py-2">
+          Maybe Later
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+
+  modal.querySelector('#close-subscription-modal').addEventListener('click', () => {
+    modal.remove();
+  });
+
+  return modal;
+}
+
 // Render the current page
 function renderPage() {
   const app = document.getElementById('app');
-  const showAuthButtons = currentPage !== 'cv-generator';
+  const user = auth.currentUser;
+  
+  // Show loading screen while auth is initializing
+  if (!authInitialized) {
+    app.innerHTML = `
+      <div class="min-h-screen flex items-center justify-center">
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-full border-4 border-primary-200 border-t-primary-500 animate-spin"></div>
+          <p class="text-white text-lg font-medium">Loading...</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+  
+  // Protected routes - redirect to landing if not logged in
+  const protectedRoutes = ['dashboard', 'account-settings', 'cv-generator', 'cv-result', 'interview-prep'];
+  if (!user && protectedRoutes.includes(currentPage)) {
+    currentPage = 'landing';
+  }
+  
+  // If logged in user is on landing, redirect to dashboard
+  if (user && currentPage === 'landing') {
+    currentPage = 'dashboard';
+  }
+  
   const header = `
     <header class="glass-dark backdrop-blur-md sticky top-0 z-50 border-b border-white/20">
       <div class="container mx-auto px-6 py-4">
         <div class="flex justify-between items-center">
-          <div class="flex items-center space-x-3">
+          <button id="home-btn" class="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer bg-transparent border-none">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center animate-glow">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
               </svg>
             </div>
             <h1 class="text-2xl font-bold text-white neon-text">Ispani AI</h1>
-          </div>
+          </button>
           <div id="auth-buttons" class="flex items-center space-x-3">
-            ${showAuthButtons ? `
+            ${user ? `
+              <span class="text-white glass-dark px-4 py-2 rounded-xl border border-white/30">
+                <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-6 h-6 mr-2 text-purple-900 align-middle" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="2.2" />
+                  <path d="M5.5 18.8C6.5 15.8 9 14 12 14C15 14 17.5 15.8 18.5 18.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+                </svg>
+                ${user.email}
+              </span>
+              <button id="logout" class="glass px-6 py-2.5 rounded-xl text-gray-400 font-semibold hover:bg-white/20 transition-all">
+                Logout
+              </button>
+            ` : `
               <button id="login" class="glass px-6 py-2.5 rounded-xl text-primary-700 font-semibold hover:bg-white transition-all">
                 Login
               </button>
               <button id="signup" class="bg-gradient-to-r from-primary-500 via-primary-600 to-accent-500 text-white px-6 py-2.5 rounded-xl font-semibold pulse-btn">
                 Sign Up
               </button>
-            ` : ''}
+            `}
           </div>
         </div>
       </div>
@@ -148,6 +264,12 @@ function renderPage() {
   switch (currentPage) {
     case 'landing':
       content = Landing();
+      break;
+    case 'dashboard':
+      content = Dashboard(currentUserData);
+      break;
+    case 'account-settings':
+      content = AccountSettings(currentUserData);
       break;
     case 'cv-generator':
       content = CVGenerator();
@@ -162,7 +284,7 @@ function renderPage() {
       content = InterviewPrep({ questions: interviewQuestions });
       break;
     default:
-      content = CVGenerator();
+      content = auth.currentUser ? Dashboard(currentUserData) : Landing();
   }
 
   app.innerHTML = header + content;
@@ -173,6 +295,50 @@ function renderPage() {
 function initializeEventListeners() {
   const loginBtn = document.getElementById('login');
   const signupBtn = document.getElementById('signup');
+  const logoutBtn = document.getElementById('logout');
+  const homeBtn = document.getElementById('home-btn');
+  const cancelCvBtn = document.getElementById('cancel-cv');
+
+  // Home button - return to dashboard if logged in, else landing
+  if (homeBtn) {
+    homeBtn.addEventListener('click', () => {
+      if (auth.currentUser) {
+        currentPage = 'dashboard';
+      } else {
+        currentPage = 'landing';
+        generatedCV = null;
+        jobMatches = null;
+        interviewQuestions = '';
+      }
+      renderPage();
+    });
+  }
+
+  // Cancel CV button - return to dashboard
+  if (cancelCvBtn) {
+    cancelCvBtn.addEventListener('click', () => {
+      currentPage = auth.currentUser ? 'dashboard' : 'landing';
+      renderPage();
+    });
+  }
+
+  // Logout button
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await handleSignOut();
+        currentPage = 'landing';
+        generatedCV = null;
+        jobMatches = null;
+        interviewQuestions = '';
+        currentUserData = null;
+        showToast('Logged out successfully', 'success');
+        renderPage();
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    });
+  }
 
   if (loginBtn) {
     loginBtn.addEventListener('click', () => {
@@ -188,9 +354,11 @@ function initializeEventListeners() {
           const email = loginForm.querySelector('#login-email').value;
           const password = loginForm.querySelector('#login-password').value;
           await handleSignIn(email, password);
+          // Fetch user data for dashboard
+          currentUserData = await getUserUsage();
           modal.remove();
           showToast('Welcome back!', 'success');
-          currentPage = 'cv-generator';
+          currentPage = 'dashboard';
           renderPage();
         } catch (error) {
           showToast(error.message, 'error');
@@ -226,9 +394,11 @@ function initializeEventListeners() {
           }
 
           await handleSignUp(email, password);
+          // Fetch user data for dashboard
+          currentUserData = await getUserUsage();
           modal.remove();
           showToast('Account created successfully!', 'success');
-          currentPage = 'cv-generator';
+          currentPage = 'dashboard';
           renderPage();
         } catch (error) {
           showToast(error.message, 'error');
@@ -250,6 +420,30 @@ function initializeEventListeners() {
       e.preventDefault();
       
       if (isLoading) return;
+      
+      // Check if user is logged in
+      if (!auth.currentUser) {
+        showToast('Please log in to generate a CV', 'warning');
+        return;
+      }
+      
+      // Check subscription/trial status
+      try {
+        const cvPermission = await canGenerateCV();
+        if (!cvPermission.allowed) {
+          showSubscriptionModal('CV generation');
+          return;
+        }
+        
+        // Show trial notice if using free trial
+        if (cvPermission.reason === 'free_trial') {
+          showToast(`This is your free CV generation trial!`, 'info');
+        }
+      } catch (err) {
+        showToast('Error checking subscription status', 'error');
+        return;
+      }
+      
       isLoading = true;
       
       const submitBtn = cvForm.querySelector('button[type="submit"]');
@@ -297,6 +491,9 @@ function initializeEventListeners() {
 
         // Ranked using full CV + profile in jobMatching (not only cvType)
         jobMatches = Array.isArray(result.jobMatches) ? result.jobMatches : [];
+        
+        // Increment usage counter after successful generation
+        await incrementCVGeneration();
 
         hideLoadingOverlay();
         showToast('CV generated successfully!', 'success');
@@ -329,12 +526,39 @@ function initializeEventListeners() {
         showToast('Generate a CV first to get tailored questions', 'error');
         return;
       }
+      
+      // Check if user is logged in
+      if (!auth.currentUser) {
+        showToast('Please log in to use interview coaching', 'warning');
+        return;
+      }
+      
+      // Check subscription/trial status for interview coaching
+      try {
+        const interviewPermission = await canUseInterviewCoaching();
+        if (!interviewPermission.allowed) {
+          showSubscriptionModal('interview coaching');
+          return;
+        }
+        
+        // Show trial notice if using free trial
+        if (interviewPermission.reason === 'free_trial') {
+          showToast(`This is your free interview coaching trial!`, 'info');
+        }
+      } catch (err) {
+        showToast('Error checking subscription status', 'error');
+        return;
+      }
 
       showLoadingOverlay('Generating Interview Questions', 'AI is creating tailored questions...');
       try {
         const profile = generatedCV.formData;
         const result = await generateInterviewQuestions(profile);
         interviewQuestions = result || 'No questions generated';
+        
+        // Increment usage counter after successful generation
+        await incrementInterviewSession();
+        
         hideLoadingOverlay();
         showToast('Interview questions are ready', 'success');
         currentPage = 'interview-prep';
@@ -479,6 +703,190 @@ function initializeEventListeners() {
     });
   }
 
+  // Dashboard navigation buttons
+  const goCVGeneratorBtn = document.getElementById('go-cv-generator');
+  if (goCVGeneratorBtn) {
+    goCVGeneratorBtn.addEventListener('click', () => {
+      currentPage = 'cv-generator';
+      renderPage();
+    });
+  }
+
+  const goInterviewPrepBtn = document.getElementById('go-interview-prep');
+  if (goInterviewPrepBtn) {
+    goInterviewPrepBtn.addEventListener('click', async () => {
+      if (!generatedCV || !generatedCV.formData) {
+        showToast('Please generate a CV first to get tailored interview questions', 'info');
+        currentPage = 'cv-generator';
+        renderPage();
+        return;
+      }
+      
+      // Check permission and go to interview prep
+      if (!auth.currentUser) {
+        showToast('Please log in to use interview coaching', 'warning');
+        return;
+      }
+      
+      try {
+        const interviewPermission = await canUseInterviewCoaching();
+        if (!interviewPermission.allowed) {
+          showSubscriptionModal('interview coaching');
+          return;
+        }
+        
+        if (interviewPermission.reason === 'free_trial') {
+          showToast('This is your free interview coaching trial!', 'info');
+        }
+      } catch (err) {
+        showToast('Error checking subscription status', 'error');
+        return;
+      }
+
+      showLoadingOverlay('Generating Interview Questions', 'AI is creating tailored questions...');
+      try {
+        const profile = generatedCV.formData;
+        const result = await generateInterviewQuestions(profile);
+        interviewQuestions = result || 'No questions generated';
+        await incrementInterviewSession();
+        hideLoadingOverlay();
+        showToast('Interview questions are ready', 'success');
+        currentPage = 'interview-prep';
+        renderPage();
+      } catch (err) {
+        hideLoadingOverlay();
+        showToast('Error generating interview questions: ' + (err.message || err), 'error');
+      }
+    });
+  }
+
+  const goAccountSettingsBtn = document.getElementById('go-account-settings');
+  if (goAccountSettingsBtn) {
+    goAccountSettingsBtn.addEventListener('click', async () => {
+      // Refresh user data before showing settings
+      if (auth.currentUser) {
+        try {
+          currentUserData = await getUserUsage();
+        } catch (err) {
+          console.error('Error refreshing user data:', err);
+        }
+      }
+      currentPage = 'account-settings';
+      renderPage();
+    });
+  }
+
+  const goJobSearchBtn = document.getElementById('go-job-search');
+  if (goJobSearchBtn) {
+    goJobSearchBtn.addEventListener('click', () => {
+      if (jobMatches && jobMatches.length > 0) {
+        currentPage = 'job-matches';
+        renderPage();
+      } else {
+        showToast('Generate a CV first to get personalized job matches', 'info');
+        currentPage = 'cv-generator';
+        renderPage();
+      }
+    });
+  }
+
+  // Account Settings event listeners
+  const backToDashboardBtn = document.getElementById('back-to-dashboard');
+  if (backToDashboardBtn) {
+    backToDashboardBtn.addEventListener('click', () => {
+      currentPage = 'dashboard';
+      renderPage();
+    });
+  }
+
+  const profileForm = document.getElementById('profile-form');
+  if (profileForm) {
+    profileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const displayName = document.getElementById('displayName').value.trim();
+      const saveBtn = document.getElementById('save-profile');
+      
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = 'Saving...';
+      
+      try {
+        await updateUserProfile(displayName);
+        currentUserData = await getUserUsage();
+        showToast('Profile updated successfully!', 'success');
+        renderPage();
+      } catch (err) {
+        showToast('Error updating profile: ' + (err.message || err), 'error');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = 'Save Changes';
+      }
+    });
+  }
+
+  const cancelSubscriptionBtn = document.getElementById('cancel-subscription');
+  if (cancelSubscriptionBtn) {
+    cancelSubscriptionBtn.addEventListener('click', async () => {
+      if (!confirm('Are you sure you want to cancel your subscription? You will lose access to premium features.')) {
+        return;
+      }
+      
+      cancelSubscriptionBtn.disabled = true;
+      cancelSubscriptionBtn.innerHTML = 'Cancelling...';
+      
+      try {
+        await cancelSubscription();
+        currentUserData = await getUserUsage();
+        showToast('Subscription cancelled successfully', 'success');
+        renderPage();
+      } catch (err) {
+        showToast('Error cancelling subscription: ' + (err.message || err), 'error');
+        cancelSubscriptionBtn.disabled = false;
+        cancelSubscriptionBtn.innerHTML = 'Cancel Subscription';
+      }
+    });
+  }
+
+  const upgradeSubscriptionLink = document.getElementById('upgrade-subscription');
+  if (upgradeSubscriptionLink) {
+    upgradeSubscriptionLink.href = getPaymentLink();
+  }
+
+  const deleteAccountBtn = document.getElementById('delete-account');
+  if (deleteAccountBtn) {
+    deleteAccountBtn.addEventListener('click', async () => {
+      if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        return;
+      }
+      
+      if (!confirm('This will permanently delete all your data. Type DELETE to confirm.')) {
+        return;
+      }
+      
+      deleteAccountBtn.disabled = true;
+      deleteAccountBtn.innerHTML = 'Deleting...';
+      
+      try {
+        // Delete user from Firebase Auth
+        const user = auth.currentUser;
+        if (user) {
+          await user.delete();
+        }
+        currentUserData = null;
+        currentPage = 'landing';
+        showToast('Account deleted successfully', 'success');
+        renderPage();
+      } catch (err) {
+        if (err.code === 'auth/requires-recent-login') {
+          showToast('Please log out and log back in, then try again', 'error');
+        } else {
+          showToast('Error deleting account: ' + (err.message || err), 'error');
+        }
+        deleteAccountBtn.disabled = false;
+        deleteAccountBtn.innerHTML = 'Delete Account';
+      }
+    });
+  }
+
   // global function used by InterviewPrep template to submit answers
   window.submitAnswer = async function(index) {
     const textarea = document.getElementById(`answer-${index}`);
@@ -512,34 +920,39 @@ function initializeEventListeners() {
 // Initialize the app
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Show loading while checking auth
   renderPage();
 
-  auth.onAuthStateChanged((user) => {
-    const authButtons = document.getElementById('auth-buttons');
+  auth.onAuthStateChanged(async (user) => {
     if (user) {
-      authButtons.innerHTML = `
-        <div class="flex items-center space-x-4">
-          <span class="text-white glass-dark px-4 py-2 rounded-xl border border-white/30">
-            <svg xmlns="http://www.w3.org/2000/svg" class="inline-block w-6 h-6 mr-2 text-purple-900 align-middle" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="2.2" />
-              <path d="M5.5 18.8C6.5 15.8 9 14 12 14C15 14 17.5 15.8 18.5 18.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
-            </svg>
-            ${user.email}
-          </span>
-          <button id="logout" class="glass px-6 py-2.5 rounded-xl text-gray-400 font-semibold hover:bg-white/20 transition-all">
-            Logout
-          </button>
-        </div>
-      `;
-      document.getElementById('logout').addEventListener('click', async () => {
-        try {
-          await handleSignOut();
-        } catch (error) {
-          alert(error.message);
-        }
-      });
+      // Fetch user data when logged in
+      try {
+        currentUserData = await getUserUsage();
+        currentUserData.email = user.email; // Ensure email is always available
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+        // Create minimal user data if fetch fails
+        currentUserData = {
+          email: user.email,
+          usage: { cvGenerations: 0, interviewSessions: 0 },
+          subscription: { isActive: false }
+        };
+      }
+      
+      // Redirect to dashboard if on landing page
+      if (currentPage === 'landing') {
+        currentPage = 'dashboard';
+      }
     } else {
-      renderPage();
+      currentUserData = null;
+      // Redirect to landing if on protected pages
+      const protectedRoutes = ['dashboard', 'account-settings', 'cv-generator', 'cv-result', 'interview-prep'];
+      if (protectedRoutes.includes(currentPage)) {
+        currentPage = 'landing';
+      }
     }
+    
+    authInitialized = true;
+    renderPage();
   });
 });
