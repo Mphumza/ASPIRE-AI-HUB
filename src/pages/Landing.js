@@ -48,10 +48,6 @@ export function Landing() {
                   Sign Up
                 </button>
               </div>
-
-              <p class="mt-3 text-xs md:text-sm text-gray-500">
-                No credit card required. Built for students, graduates and working professionals.
-              </p>
             </div>
 
             <!-- Features: CVs, Careers, Interviews as rows (text left, image right) -->

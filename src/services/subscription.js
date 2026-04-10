@@ -74,7 +74,7 @@ export async function canGenerateCV() {
     }
     
     // Check free tier limit
-    const cvCount = userData.usage?.cvGenerations || 0;
+    const cvCount = userData.usage?.cvGenerations || 1;
     if (cvCount < FREE_CV_GENERATIONS) {
       return { 
         allowed: true, 
@@ -107,7 +107,7 @@ export async function canUseInterviewCoaching() {
     }
     
     // Check free tier limit
-    const sessionCount = userData.usage?.interviewSessions || 0;
+    const sessionCount = userData.usage?.interviewSessions || 1;
     if (sessionCount < FREE_INTERVIEW_SESSIONS) {
       return { 
         allowed: true, 
