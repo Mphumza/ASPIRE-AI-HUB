@@ -197,8 +197,8 @@ export function downloadCVAsPDF(formData) {
     doc.text(nameFallback, pageWidth / 2, nameY, { align: 'center' });
   }
   y = nameY + 14;
-
-  const contactEl = cvElement.querySelector('.editable-contact');
+  
+ const contactEl = cvElement.querySelector('.editable-contact');
 const addressEl = cvElement.querySelector('.editable-address');
 
 const updatedContact = contactEl?.textContent.trim() || '';
