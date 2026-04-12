@@ -613,7 +613,7 @@ export function CVResult(cvData) {
               <button id="format-bold" class="px-3 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 font-bold">B</button>
               <button id="format-italic" class="px-3 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 italic">I</button>
               <button id="format-underline" class="px-3 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 underline">U</button>
-              <button id="save-cv" class="px-3 py-2 rounded-xl bg-primary-600 text-white hover:bg-primary-700">Save Edits</button>
+              <!-- <button id="save-cv" class="px-3 py-2 rounded-xl bg-primary-600 text-white hover:bg-primary-700">Save Edits</button> -->
               <button id="reset-cv" class="px-3 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600">Reset Original</button>
             </div>
             <style contenteditable="false">

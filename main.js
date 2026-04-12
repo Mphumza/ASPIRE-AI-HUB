@@ -600,7 +600,7 @@ function initializeEventListeners() {
   if (boldBtn) {
     boldBtn.addEventListener('click', (event) => {
       event.preventDefault();
-      applyInlineFormatting('strong');
+     document.execCommand('bold');
     });
   }
 
@@ -608,7 +608,7 @@ function initializeEventListeners() {
   if (italicBtn) {
     italicBtn.addEventListener('click', (event) => {
       event.preventDefault();
-      applyInlineFormatting('em');
+     document.execCommand('italic');
     });
   }
 
@@ -616,11 +616,11 @@ function initializeEventListeners() {
   if (underlineBtn) {
     underlineBtn.addEventListener('click', (event) => {
       event.preventDefault();
-      applyInlineFormatting('u');
+      document.execCommand('underline');
     });
   }
 
-  const saveCvBtn = document.getElementById('save-cv');
+  /*const saveCvBtn = document.getElementById('save-cv');
   if (saveCvBtn) {
     saveCvBtn.addEventListener('click', () => {
       const editable = document.getElementById('editable-cv');
@@ -633,6 +633,7 @@ function initializeEventListeners() {
       if (!generatedCV) {
         showToast('No CV loaded to save', 'error');
         return;
+        
       }
 
       generatedCV.editedHtml = html;
@@ -643,7 +644,7 @@ function initializeEventListeners() {
       renderPage();
     });
   }
-
+*/
   const resetCvBtn = document.getElementById('reset-cv');
   if (resetCvBtn) {
     resetCvBtn.addEventListener('click', () => {
