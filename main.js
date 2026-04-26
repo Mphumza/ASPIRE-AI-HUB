@@ -9,7 +9,7 @@ import { JobMatches } from './src/pages/JobMatches.js';
 import { InterviewPrep } from './src/pages/InterviewPrep.js';
 import { LoginForm, RegisterForm } from './src/components/AuthForms.js';
 import { handleSignIn, handleSignUp, handleSignOut } from './src/services/auth.js';
-import { generateCV, convertMarkdownToHTML } from './src/services/cv.js';
+import { generateCV, convertMarkdownToHTML, saveCV, updateCV } from './src/services/cv.js';
 import {
   generateInterviewQuestions,
   evaluateAnswer,
@@ -24,6 +24,7 @@ import {
   getPaymentLink,
   getUserUsage,
   hasActiveSubscription,
+  activateSubscription,
   cancelSubscription,
   updateUserProfile,
 } from './src/services/subscription.js';
@@ -37,6 +38,47 @@ let interviewQuestions = '';
 let isLoading = false;
 let currentUserData = null;
 let authInitialized = false;
+
+// ── State persistence (survives page refresh) ────────────────────────────────
+const STORAGE_CV_KEY = 'ispani_cv';
+const STORAGE_JOBS_KEY = 'ispani_jobs';
+
+function persistState() {
+  if (generatedCV) {
+    try {
+      localStorage.setItem(STORAGE_CV_KEY, JSON.stringify({
+        markdown: generatedCV.markdown,
+        html: generatedCV.html,
+        originalHtml: generatedCV.originalHtml,
+        editedHtml: generatedCV.editedHtml,
+        formData: generatedCV.formData,
+        firestoreId: generatedCV.firestoreId || null,
+      }));
+    } catch (_) { /* storage quota — ignore */ }
+  }
+  if (Array.isArray(jobMatches) && jobMatches.length) {
+    try {
+      localStorage.setItem(STORAGE_JOBS_KEY, JSON.stringify(jobMatches));
+    } catch (_) { /* ignore */ }
+  }
+}
+
+function loadPersistedState() {
+  try {
+    const cvRaw = localStorage.getItem(STORAGE_CV_KEY);
+    if (cvRaw) generatedCV = JSON.parse(cvRaw);
+  } catch (_) { generatedCV = null; }
+  try {
+    const jobsRaw = localStorage.getItem(STORAGE_JOBS_KEY);
+    if (jobsRaw) jobMatches = JSON.parse(jobsRaw);
+  } catch (_) { jobMatches = []; }
+}
+
+function clearPersistedState() {
+  localStorage.removeItem(STORAGE_CV_KEY);
+  localStorage.removeItem(STORAGE_JOBS_KEY);
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Loading overlay component
 function showLoadingOverlay(message = 'Processing...', subMessage = '') {
@@ -127,6 +169,36 @@ function showAuthModal(content) {
 
   return modal;
 }
+
+// ── Stripe payment return handler ────────────────────────────────────────────
+// Stripe payment link should be configured in the dashboard with a success URL:
+//   https://yourdomain.com/?payment_success=true&session_id={CHECKOUT_SESSION_ID}
+async function handlePaymentReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const paymentSuccess = params.get('payment_success');
+  const sessionId = params.get('session_id');
+
+  // Validate a real Stripe Checkout session ID is present
+  if (paymentSuccess !== 'true' || !sessionId || !/^cs_(test|live)_[A-Za-z0-9]+/.test(sessionId)) {
+    return;
+  }
+
+  // Remove params from the URL without triggering a reload
+  window.history.replaceState({}, '', window.location.pathname);
+
+  try {
+    const alreadySubscribed = await hasActiveSubscription();
+    if (!alreadySubscribed) {
+      await activateSubscription();
+      currentUserData = await getUserUsage();
+      showToast('Subscription activated! Welcome to Premium!', 'success');
+    }
+  } catch (err) {
+    console.error('Error activating subscription after payment:', err);
+    showToast('Payment received but activation failed. Please contact support.', 'error');
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Subscription paywall modal
 function showSubscriptionModal(feature = 'CV generation') {
@@ -332,6 +404,7 @@ function initializeEventListeners() {
         jobMatches = null;
         interviewQuestions = '';
         currentUserData = null;
+        clearPersistedState();
         showToast('Logged out successfully', 'success');
         renderPage();
       } catch (error) {
@@ -440,7 +513,8 @@ function initializeEventListeners() {
           showToast(`This is your free CV generation trial!`, 'info');
         }
       } catch (err) {
-        showToast('Error checking subscription status', 'error');
+        console.error('CV permission check error:', err);
+        showToast('Error checking subscription status: ' + (err.message || 'Please try again'), 'error');
         return;
       }
       
@@ -494,6 +568,15 @@ function initializeEventListeners() {
         
         // Increment usage counter after successful generation
         await incrementCVGeneration();
+
+        // Persist CV to Firestore and save state locally
+        try {
+          const docId = await saveCV({ ...generatedCV, cv: result.cv });
+          generatedCV.firestoreId = docId;
+        } catch (saveErr) {
+          console.warn('Could not persist CV to Firestore:', saveErr?.message);
+        }
+        persistState();
 
         hideLoadingOverlay();
         showToast('CV generated successfully!', 'success');
@@ -637,6 +720,14 @@ function initializeEventListeners() {
 
       generatedCV.editedHtml = html;
       generatedCV.html = html;
+
+      // Persist locally and sync to Firestore if we have a document ID
+      persistState();
+      if (generatedCV.firestoreId) {
+        updateCV(generatedCV.firestoreId, html).catch(err =>
+          console.warn('Could not sync CV edit to Firestore:', err?.message)
+        );
+      }
 
       showToast('CV changes saved successfully', 'success');
       currentPage = 'cv-result';
@@ -920,6 +1011,9 @@ function initializeEventListeners() {
 // Initialize the app
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Restore CV/job state from previous session before first render
+  loadPersistedState();
+
   // Show loading while checking auth
   renderPage();
 
@@ -938,7 +1032,10 @@ document.addEventListener('DOMContentLoaded', () => {
           subscription: { isActive: false }
         };
       }
-      
+
+      // Handle return from Stripe payment page
+      await handlePaymentReturn();
+
       // Redirect to dashboard if on landing page
       if (currentPage === 'landing') {
         currentPage = 'dashboard';

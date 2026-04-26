@@ -1,4 +1,4 @@
-import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 import { auth } from '../config/firebase.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getRecommendedJobs } from './jobMatching.js';
@@ -196,6 +196,27 @@ export async function saveCV(cvData) {
   } catch (error) {
     console.error('Save CV Error:', error);
     throw new Error('Failed to save CV. Please try again.');
+  }
+}
+
+/**
+ * Updates an existing CV document in Firestore with edited HTML.
+ * @param {string} docId - The Firestore document ID returned by saveCV.
+ * @param {string} editedHtml - The user-edited HTML content.
+ */
+export async function updateCV(docId, editedHtml) {
+  const user = auth.currentUser;
+  if (!user || !docId) return;
+
+  try {
+    const cvRef = doc(db, 'cvs', docId);
+    await updateDoc(cvRef, {
+      'cvData.editedHtml': editedHtml,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Update CV Error:', error);
+    throw new Error('Failed to save CV edits. Please try again.');
   }
 }
 
