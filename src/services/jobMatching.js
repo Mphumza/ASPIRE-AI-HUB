@@ -11,12 +11,12 @@ const FIELD_KEYWORDS = {
   engineering: 'engineering engineer',
   computer_science: 'software developer IT technology programming',
   creative_arts: 'creative design media arts',
-  teaching: 'teacher education teaching',
-  admin: 'administration office administrative',
+  teaching: 'teacher education teaching tutor',
+  admin: 'administration office administrative Business management',
   healthcare: 'healthcare medical',
   marketing: 'marketing brand digital',
-  finance: 'finance accounting',
-  construction: 'construction building',
+  finance: 'finance accounting Supply chain logistics',
+  construction: 'construction building Quantity surveyor civil structural',
   hospitality: 'hospitality hotel restaurant',
 };
 
