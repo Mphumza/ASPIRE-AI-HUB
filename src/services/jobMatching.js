@@ -30,8 +30,8 @@ const CV_TYPE_KEYWORDS = {
   academic: 'graduate research entry level',
 };
 
-const APP_ID = import.meta.env.VITE_ADZUNA_APP_ID || '50f33641';
-const ADZUNA_KEY = import.meta.env.VITE_ADZUNA_APP_KEY || '41178ebea8323e7b56402fad09f73ef4';
+const APP_ID = import.meta.env.VITE_ADZUNA_APP_ID;
+const ADZUNA_KEY = import.meta.env.VITE_ADZUNA_APP_KEY;
 const ADZUNA_COUNTRY = import.meta.env.VITE_ADZUNA_COUNTRY || 'za';
 const MAX_WHAT_LENGTH = 220;
 const MAX_CV_SNIPPET = 600;
@@ -205,6 +205,9 @@ function normalizeAdzunaJob(job) {
 
 /** Fetch jobs from Adzuna (South Africa by default) */
 export async function fetchAdzunaJobs(what, resultsPerPage = 30) {
+  if (!APP_ID || !ADZUNA_KEY) {
+    throw new Error('Adzuna API credentials are not configured. Please set VITE_ADZUNA_APP_ID and VITE_ADZUNA_APP_KEY in your .env file.');
+  }
   const query = (what || 'jobs').trim() || 'jobs';
   const n = Math.min(Math.max(resultsPerPage, 5), 50);
   const url = `https://api.adzuna.com/v1/api/jobs/${ADZUNA_COUNTRY}/search/1?app_id=${APP_ID}&app_key=${ADZUNA_KEY}&results_per_page=${n}&what=${encodeURIComponent(query)}`;

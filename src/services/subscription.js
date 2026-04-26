@@ -16,14 +16,69 @@ export async function getUserUsage() {
     throw new Error('User must be logged in');
   }
 
-  const userRef = doc(db, 'users', user.uid);
-  const userDoc = await getDoc(userRef);
+  try {
+    const userRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userRef);
 
-  if (!userDoc.exists()) {
-    // Initialize user document with usage tracking
-    const initialData = {
+    if (!userDoc.exists()) {
+      // Initialize user document with usage tracking
+      const initialData = {
+        email: user.email,
+        createdAt: new Date().toISOString(),
+        usage: {
+          cvGenerations: 0,
+          interviewSessions: 0,
+        },
+        subscription: {
+          isActive: false,
+          subscribedAt: null,
+          expiresAt: null,
+        },
+      };
+      try {
+        await setDoc(userRef, initialData);
+      } catch (setError) {
+        console.error('Error creating user document:', setError);
+        // Return initial data even if save fails (user can still use the app)
+        return initialData;
+      }
+      return initialData;
+    }
+
+    const data = userDoc.data();
+    
+    // Ensure usage fields exist (for existing users)
+    if (!data.usage) {
+      data.usage = {
+        cvGenerations: 0,
+        interviewSessions: 0,
+      };
+      try {
+        await updateDoc(userRef, { usage: data.usage });
+      } catch (updateError) {
+        console.error('Error updating usage fields:', updateError);
+      }
+    }
+    
+    if (!data.subscription) {
+      data.subscription = {
+        isActive: false,
+        subscribedAt: null,
+        expiresAt: null,
+      };
+      try {
+        await updateDoc(userRef, { subscription: data.subscription });
+      } catch (updateError) {
+        console.error('Error updating subscription fields:', updateError);
+      }
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Firestore error in getUserUsage:', error);
+    // Return a default object to allow the app to function
+    return {
       email: user.email,
-      createdAt: new Date().toISOString(),
       usage: {
         cvGenerations: 0,
         interviewSessions: 0,
@@ -34,31 +89,7 @@ export async function getUserUsage() {
         expiresAt: null,
       },
     };
-    await setDoc(userRef, initialData);
-    return initialData;
   }
-
-  const data = userDoc.data();
-  
-  // Ensure usage fields exist (for existing users)
-  if (!data.usage) {
-    data.usage = {
-      cvGenerations: 0,
-      interviewSessions: 0,
-    };
-    await updateDoc(userRef, { usage: data.usage });
-  }
-  
-  if (!data.subscription) {
-    data.subscription = {
-      isActive: false,
-      subscribedAt: null,
-      expiresAt: null,
-    };
-    await updateDoc(userRef, { subscription: data.subscription });
-  }
-
-  return data;
 }
 
 /**
@@ -241,9 +272,38 @@ export async function updateUserProfile(displayName) {
     throw new Error('User must be logged in');
   }
 
-  const userRef = doc(db, 'users', user.uid);
-  await updateDoc(userRef, {
-    displayName: displayName,
-    updatedAt: new Date().toISOString(),
-  });
+  try {
+    const userRef = doc(db, 'users', user.uid);
+    
+    // First check if the document exists
+    const userDoc = await getDoc(userRef);
+    
+    if (!userDoc.exists()) {
+      // Create the document if it doesn't exist
+      await setDoc(userRef, {
+        email: user.email,
+        displayName: displayName,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        usage: {
+          cvGenerations: 0,
+          interviewSessions: 0,
+        },
+        subscription: {
+          isActive: false,
+          subscribedAt: null,
+          expiresAt: null,
+        },
+      });
+    } else {
+      // Update existing document
+      await updateDoc(userRef, {
+        displayName: displayName,
+        updatedAt: new Date().toISOString(),
+      });
+    }
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    throw new Error('Failed to update profile. Please check your connection and try again.');
+  }
 }
