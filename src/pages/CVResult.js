@@ -2,21 +2,29 @@ import jsPDF from 'jspdf';
 function formatCVContent(html, formData) {
   return `
   <div class="cv-document">
+      
       <!-- Header Section -->
       <div class="cv-header text-center mb-8 pb-6 border-b-2 border-gray-300">
-        <!-- Name -->
-        <h1 class="text-4xl font-bold text-gray-900 mb-2 text-center">
+        
+        <!-- Name (EDITABLE) -->
+        <h1 class="text-4xl font-bold text-gray-900 mb-2 text-center" contenteditable="true">
           ${formData?.fullName || 'Your Name'}
         </h1>
         
-        <!-- Blue design line under name -->
+        <!-- Blue line -->
         <div class="w-24 h-1 mx-auto bg-blue-500 mb-4"></div>
         
-        <!-- Contact Info -->
-          <div class="flex flex-wrap justify-center gap-4 mt-2 text-sm text-gray-700 cv-contact-info">
-          <span class="flex items-center gap-1">
-          ${formData?.contactInfo ? `<span class="flex items-center gap-1"> Contact: ${formData.contactInfo}</span>` : ''}
-          ${formData?.address ? `<span class="flex items-center gap-1"> Location: ${formData.address}</span>` : ''}
+        <!-- Contact Info (EDITABLE) -->
+        <div class="flex flex-wrap justify-center gap-4 mt-2 text-sm text-gray-700 cv-contact-info">
+          
+          <span class="editable-contact" contenteditable="true">
+            ${formData?.contactInfo || 'Your contact info'}
+          </span>
+
+          <span class="editable-address" contenteditable="true">
+            ${formData?.address || 'Your address'}
+          </span>
+
         </div>
       </div>
 
@@ -189,19 +197,26 @@ export function downloadCVAsPDF(formData) {
     doc.text(nameFallback, pageWidth / 2, nameY, { align: 'center' });
   }
   y = nameY + 14;
+  
+ const contactEl = cvElement.querySelector('.editable-contact');
+const addressEl = cvElement.querySelector('.editable-address');
 
-  const contactParts = [];
-  if (formData?.contactInfo) contactParts.push(formData.contactInfo);
-  if (formData?.address) contactParts.push(formData.address);
-  const contactLine = contactParts.join(' | ');
+const updatedContact = contactEl?.textContent.trim() || '';
+const updatedAddress = addressEl?.textContent.trim() || '';
 
-  if (contactLine) {
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(80, 80, 80);
-    doc.text(contactLine, pageWidth / 2, y, { align: 'center' });
-    y += 10;
-  }
+const contactParts = [];
+if (updatedContact) contactParts.push(updatedContact);
+if (updatedAddress) contactParts.push(updatedAddress);
+
+const contactLine = contactParts.join(' | ');
+
+if (contactLine) {
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(80, 80, 80);
+  doc.text(contactLine, pageWidth / 2, y, { align: 'center' });
+  y += 10;
+}
 
   doc.setDrawColor(200, 200, 200);
   doc.setLineWidth(0.5);
@@ -598,7 +613,7 @@ export function CVResult(cvData) {
               <button id="format-bold" class="px-3 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 font-bold">B</button>
               <button id="format-italic" class="px-3 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 italic">I</button>
               <button id="format-underline" class="px-3 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 underline">U</button>
-              <button id="save-cv" class="px-3 py-2 rounded-xl bg-primary-600 text-white hover:bg-primary-700">Save Edits</button>
+              <!-- <button id="save-cv" class="px-3 py-2 rounded-xl bg-primary-600 text-white hover:bg-primary-700">Save Edits</button> -->
               <button id="reset-cv" class="px-3 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600">Reset Original</button>
             </div>
             <style contenteditable="false">
