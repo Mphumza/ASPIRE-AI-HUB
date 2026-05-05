@@ -117,7 +117,11 @@ export function AccountSettings(userData = {}) {
                 </p>
               </div>
               
+<<<<<<< HEAD
               <a id="upgrade-subscription" href="#"
+=======
+              <a id="upgrade-subscription" href="#" target="_blank" rel="noopener noreferrer"
+>>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
                 class="block w-full text-center bg-gradient-to-r from-primary-500 via-primary-600 to-accent-500 text-white px-6 py-4 rounded-xl font-bold text-lg hover:shadow-xl transform hover:scale-[1.01] transition-all">
                 Upgrade to Premium — R50/month
               </a>

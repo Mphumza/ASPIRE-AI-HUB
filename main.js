@@ -10,6 +10,10 @@ import { InterviewPrep } from './src/pages/InterviewPrep.js';
 import { LoginForm, RegisterForm } from './src/components/AuthForms.js';
 import { handleSignIn, handleSignUp, handleSignOut } from './src/services/auth.js';
 import { generateCV, convertMarkdownToHTML, saveCV, updateCV } from './src/services/cv.js';
+<<<<<<< HEAD
+=======
+import { getRecommendedJobs } from './src/services/jobMatching.js';
+>>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
 import {
   generateInterviewQuestions,
   evaluateAnswer,
@@ -39,6 +43,47 @@ let isLoading = false;
 let currentUserData = null;
 let authInitialized = false;
 
+<<<<<<< HEAD
+=======
+const PAGE_TO_PATH = {
+  landing: '/',
+  dashboard: '/dashboard',
+  'account-settings': '/account-settings',
+  'cv-generator': '/cv-generator',
+  'cv-result': '/cv-results',
+  'job-matches': '/job-matches',
+  'interview-prep': '/interview-prep',
+};
+
+const PATH_TO_PAGE = {
+  '/': 'landing',
+  '/dashboard': 'dashboard',
+  '/account-settings': 'account-settings',
+  '/cv-generator': 'cv-generator',
+  '/cv-results': 'cv-result',
+  '/job-matches': 'job-matches',
+  '/interview-prep': 'interview-prep',
+};
+
+function normalizePath(pathname) {
+  if (!pathname) return '/';
+  const normalized = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
+  return normalized || '/';
+}
+
+function syncUrlWithCurrentPage() {
+  const targetPath = PAGE_TO_PATH[currentPage] || '/';
+  if (window.location.pathname !== targetPath) {
+    window.history.pushState({ page: currentPage }, '', targetPath);
+  }
+}
+
+function hydratePageFromPath() {
+  const normalizedPath = normalizePath(window.location.pathname);
+  currentPage = PATH_TO_PAGE[normalizedPath] || 'landing';
+}
+
+>>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
 // ── State persistence (survives page refresh) ────────────────────────────────
 const STORAGE_CV_KEY = 'ispani_cv';
 const STORAGE_JOBS_KEY = 'ispani_jobs';
@@ -75,9 +120,44 @@ function loadPersistedState() {
 }
 
 function clearPersistedState() {
+<<<<<<< HEAD
   localStorage.removeItem(STORAGE_CV_KEY);
   localStorage.removeItem(STORAGE_JOBS_KEY);
 }
+=======
+  localStorage.removeItem(STORAGE_JOBS_KEY);
+}
+
+function persistJobMatches() {
+  if (Array.isArray(jobMatches) && jobMatches.length) {
+    try {
+      localStorage.setItem(STORAGE_JOBS_KEY, JSON.stringify(jobMatches));
+    } catch (_) { /* ignore */ }
+  }
+}
+
+async function ensureJobMatchesForCurrentCV() {
+  if (Array.isArray(jobMatches) && jobMatches.length) return true;
+  if (!generatedCV || !generatedCV.formData) return false;
+
+  showLoadingOverlay('Finding Job Matches', 'Matching opportunities to your saved CV...');
+  try {
+    const profile = {
+      ...generatedCV.formData,
+      generatedCvMarkdown: generatedCV.markdown || '',
+    };
+    const matches = await getRecommendedJobs(profile);
+    jobMatches = Array.isArray(matches) ? matches : [];
+    persistJobMatches();
+    hideLoadingOverlay();
+    return jobMatches.length > 0;
+  } catch (err) {
+    hideLoadingOverlay();
+    showToast('Could not load job matches right now. Please try again.', 'error');
+    return false;
+  }
+}
+>>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Loading overlay component
@@ -191,7 +271,10 @@ async function handlePaymentReturn() {
     if (!alreadySubscribed) {
       await activateSubscription();
       currentUserData = await getUserUsage();
+<<<<<<< HEAD
       currentPage = 'account-settings';
+=======
+>>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
       showToast('Subscription activated! Welcome to Premium!', 'success');
     }
   } catch (err) {
@@ -241,7 +324,11 @@ function showSubscriptionModal(feature = 'CV generation') {
       </div>
       
       <div class="flex flex-col gap-3">
+<<<<<<< HEAD
         <a href="${paymentLink}"
+=======
+        <a href="${paymentLink}" target="_blank" rel="noopener noreferrer"
+>>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
           class="w-full bg-gradient-to-r from-primary-500 via-primary-600 to-accent-500 text-white py-4 px-8 rounded-xl font-bold text-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 inline-block">
           Subscribe Now
         </a>
@@ -361,6 +448,7 @@ function renderPage() {
   }
 
   app.innerHTML = header + content;
+  syncUrlWithCurrentPage();
   initializeEventListeners();
 }
 
@@ -597,7 +685,10 @@ function initializeEventListeners() {
 
   const viewMatchesBtn = document.getElementById('view-matches');
   if (viewMatchesBtn) {
-    viewMatchesBtn.addEventListener('click', () => {
+    viewMatchesBtn.addEventListener('click', async () => {
+      if (!jobMatches || !jobMatches.length) {
+        await ensureJobMatchesForCurrentCV();
+      }
       currentPage = 'job-matches';
       renderPage();
     });
@@ -704,7 +795,11 @@ function initializeEventListeners() {
     });
   }
 
+<<<<<<< HEAD
   /*const saveCvBtn = document.getElementById('save-cv');
+=======
+  const saveCvBtn = document.getElementById('save-cv');
+>>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
   if (saveCvBtn) {
     saveCvBtn.addEventListener('click', () => {
       const editable = document.getElementById('editable-cv');
@@ -723,8 +818,12 @@ function initializeEventListeners() {
       generatedCV.editedHtml = html;
       generatedCV.html = html;
 
+<<<<<<< HEAD
       // Persist locally and sync to Firestore if we have a document ID
       persistState();
+=======
+      // Keep "last generated CV" storage stable; only AI generation overwrites it.
+>>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
       if (generatedCV.firestoreId) {
         updateCV(generatedCV.firestoreId, html).catch(err =>
           console.warn('Could not sync CV edit to Firestore:', err?.message)
@@ -736,7 +835,11 @@ function initializeEventListeners() {
       renderPage();
     });
   }
+<<<<<<< HEAD
 */
+=======
+
+>>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
   const resetCvBtn = document.getElementById('reset-cv');
   if (resetCvBtn) {
     resetCvBtn.addEventListener('click', () => {
@@ -805,6 +908,17 @@ function initializeEventListeners() {
     });
   }
 
+<<<<<<< HEAD
+=======
+  const goCVResultsBtn = document.getElementById('go-cv-results');
+  if (goCVResultsBtn) {
+    goCVResultsBtn.addEventListener('click', () => {
+      currentPage = 'cv-result';
+      renderPage();
+    });
+  }
+
+>>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
   const goInterviewPrepBtn = document.getElementById('go-interview-prep');
   if (goInterviewPrepBtn) {
     goInterviewPrepBtn.addEventListener('click', async () => {
@@ -871,7 +985,14 @@ function initializeEventListeners() {
 
   const goJobSearchBtn = document.getElementById('go-job-search');
   if (goJobSearchBtn) {
+<<<<<<< HEAD
     goJobSearchBtn.addEventListener('click', () => {
+=======
+    goJobSearchBtn.addEventListener('click', async () => {
+      if (!jobMatches || !jobMatches.length) {
+        await ensureJobMatchesForCurrentCV();
+      }
+>>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
       if (jobMatches && jobMatches.length > 0) {
         currentPage = 'job-matches';
         renderPage();
@@ -1013,14 +1134,33 @@ function initializeEventListeners() {
 // Initialize the app
 
 document.addEventListener('DOMContentLoaded', () => {
+<<<<<<< HEAD
   // Restore CV/job state from previous session before first render
   loadPersistedState();
 
+=======
+  hydratePageFromPath();
+
+  // Restore CV/job state from previous session before first render
+  loadPersistedState();
+
+  window.addEventListener('popstate', () => {
+    hydratePageFromPath();
+    renderPage();
+  });
+
+>>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
   // Show loading while checking auth
   renderPage();
 
   auth.onAuthStateChanged(async (user) => {
     if (user) {
+<<<<<<< HEAD
+=======
+      // Restore last generated CV for resume flow after re-login.
+      loadPersistedState();
+
+>>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
       // Fetch user data when logged in
       try {
         currentUserData = await getUserUsage();
