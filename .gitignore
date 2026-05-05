@@ -6,4 +6,3 @@ dist
 
 # Firebase service account key (sensitive!)
 scripts/serviceAccountKey.json
-serviceAccountKey.json

@@ -191,6 +191,7 @@ async function handlePaymentReturn() {
     if (!alreadySubscribed) {
       await activateSubscription();
       currentUserData = await getUserUsage();
+      currentPage = 'account-settings';
       showToast('Subscription activated! Welcome to Premium!', 'success');
     }
   } catch (err) {
@@ -240,7 +241,7 @@ function showSubscriptionModal(feature = 'CV generation') {
       </div>
       
       <div class="flex flex-col gap-3">
-        <a href="${paymentLink}" target="_blank" rel="noopener noreferrer"
+        <a href="${paymentLink}"
           class="w-full bg-gradient-to-r from-primary-500 via-primary-600 to-accent-500 text-white py-4 px-8 rounded-xl font-bold text-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 inline-block">
           Subscribe Now
         </a>
