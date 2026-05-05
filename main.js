@@ -10,6 +10,7 @@ import { InterviewPrep } from './src/pages/InterviewPrep.js';
 import { LoginForm, RegisterForm } from './src/components/AuthForms.js';
 import { handleSignIn, handleSignUp, handleSignOut } from './src/services/auth.js';
 import { generateCV, convertMarkdownToHTML, saveCV, updateCV } from './src/services/cv.js';
+import { getRecommendedJobs } from './src/services/jobMatching.js';
 import {
   generateInterviewQuestions,
   evaluateAnswer,
@@ -38,6 +39,44 @@ let interviewQuestions = '';
 let isLoading = false;
 let currentUserData = null;
 let authInitialized = false;
+
+const PAGE_TO_PATH = {
+  landing: '/',
+  dashboard: '/dashboard',
+  'account-settings': '/account-settings',
+  'cv-generator': '/cv-generator',
+  'cv-result': '/cv-results',
+  'job-matches': '/job-matches',
+  'interview-prep': '/interview-prep',
+};
+
+const PATH_TO_PAGE = {
+  '/': 'landing',
+  '/dashboard': 'dashboard',
+  '/account-settings': 'account-settings',
+  '/cv-generator': 'cv-generator',
+  '/cv-results': 'cv-result',
+  '/job-matches': 'job-matches',
+  '/interview-prep': 'interview-prep',
+};
+
+function normalizePath(pathname) {
+  if (!pathname) return '/';
+  const normalized = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
+  return normalized || '/';
+}
+
+function syncUrlWithCurrentPage() {
+  const targetPath = PAGE_TO_PATH[currentPage] || '/';
+  if (window.location.pathname !== targetPath) {
+    window.history.pushState({ page: currentPage }, '', targetPath);
+  }
+}
+
+function hydratePageFromPath() {
+  const normalizedPath = normalizePath(window.location.pathname);
+  currentPage = PATH_TO_PAGE[normalizedPath] || 'landing';
+}
 
 // ── State persistence (survives page refresh) ────────────────────────────────
 const STORAGE_CV_KEY = 'ispani_cv';
@@ -75,8 +114,37 @@ function loadPersistedState() {
 }
 
 function clearPersistedState() {
-  localStorage.removeItem(STORAGE_CV_KEY);
   localStorage.removeItem(STORAGE_JOBS_KEY);
+}
+
+function persistJobMatches() {
+  if (Array.isArray(jobMatches) && jobMatches.length) {
+    try {
+      localStorage.setItem(STORAGE_JOBS_KEY, JSON.stringify(jobMatches));
+    } catch (_) { /* ignore */ }
+  }
+}
+
+async function ensureJobMatchesForCurrentCV() {
+  if (Array.isArray(jobMatches) && jobMatches.length) return true;
+  if (!generatedCV || !generatedCV.formData) return false;
+
+  showLoadingOverlay('Finding Job Matches', 'Matching opportunities to your saved CV...');
+  try {
+    const profile = {
+      ...generatedCV.formData,
+      generatedCvMarkdown: generatedCV.markdown || '',
+    };
+    const matches = await getRecommendedJobs(profile);
+    jobMatches = Array.isArray(matches) ? matches : [];
+    persistJobMatches();
+    hideLoadingOverlay();
+    return jobMatches.length > 0;
+  } catch (err) {
+    hideLoadingOverlay();
+    showToast('Could not load job matches right now. Please try again.', 'error');
+    return false;
+  }
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -360,6 +428,7 @@ function renderPage() {
   }
 
   app.innerHTML = header + content;
+  syncUrlWithCurrentPage();
   initializeEventListeners();
 }
 
@@ -596,7 +665,10 @@ function initializeEventListeners() {
 
   const viewMatchesBtn = document.getElementById('view-matches');
   if (viewMatchesBtn) {
-    viewMatchesBtn.addEventListener('click', () => {
+    viewMatchesBtn.addEventListener('click', async () => {
+      if (!jobMatches || !jobMatches.length) {
+        await ensureJobMatchesForCurrentCV();
+      }
       currentPage = 'job-matches';
       renderPage();
     });
@@ -703,7 +775,7 @@ function initializeEventListeners() {
     });
   }
 
-  /*const saveCvBtn = document.getElementById('save-cv');
+  const saveCvBtn = document.getElementById('save-cv');
   if (saveCvBtn) {
     saveCvBtn.addEventListener('click', () => {
       const editable = document.getElementById('editable-cv');
@@ -722,8 +794,7 @@ function initializeEventListeners() {
       generatedCV.editedHtml = html;
       generatedCV.html = html;
 
-      // Persist locally and sync to Firestore if we have a document ID
-      persistState();
+      // Keep "last generated CV" storage stable; only AI generation overwrites it.
       if (generatedCV.firestoreId) {
         updateCV(generatedCV.firestoreId, html).catch(err =>
           console.warn('Could not sync CV edit to Firestore:', err?.message)
@@ -735,7 +806,7 @@ function initializeEventListeners() {
       renderPage();
     });
   }
-*/
+
   const resetCvBtn = document.getElementById('reset-cv');
   if (resetCvBtn) {
     resetCvBtn.addEventListener('click', () => {
@@ -800,6 +871,14 @@ function initializeEventListeners() {
   if (goCVGeneratorBtn) {
     goCVGeneratorBtn.addEventListener('click', () => {
       currentPage = 'cv-generator';
+      renderPage();
+    });
+  }
+
+  const goCVResultsBtn = document.getElementById('go-cv-results');
+  if (goCVResultsBtn) {
+    goCVResultsBtn.addEventListener('click', () => {
+      currentPage = 'cv-result';
       renderPage();
     });
   }
@@ -870,7 +949,10 @@ function initializeEventListeners() {
 
   const goJobSearchBtn = document.getElementById('go-job-search');
   if (goJobSearchBtn) {
-    goJobSearchBtn.addEventListener('click', () => {
+    goJobSearchBtn.addEventListener('click', async () => {
+      if (!jobMatches || !jobMatches.length) {
+        await ensureJobMatchesForCurrentCV();
+      }
       if (jobMatches && jobMatches.length > 0) {
         currentPage = 'job-matches';
         renderPage();
@@ -1012,14 +1094,24 @@ function initializeEventListeners() {
 // Initialize the app
 
 document.addEventListener('DOMContentLoaded', () => {
+  hydratePageFromPath();
+
   // Restore CV/job state from previous session before first render
   loadPersistedState();
+
+  window.addEventListener('popstate', () => {
+    hydratePageFromPath();
+    renderPage();
+  });
 
   // Show loading while checking auth
   renderPage();
 
   auth.onAuthStateChanged(async (user) => {
     if (user) {
+      // Restore last generated CV for resume flow after re-login.
+      loadPersistedState();
+
       // Fetch user data when logged in
       try {
         currentUserData = await getUserUsage();

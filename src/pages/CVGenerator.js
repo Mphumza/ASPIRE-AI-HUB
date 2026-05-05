@@ -227,7 +227,7 @@ export function CVGenerator() {
  
                   <div>
                     <label for="references" class="block text-sm font-semibold text-gray-700 mb-2">References</label>
-                    <textarea id="references" rows="3" placeholder="Provide references or leave blank to show 'Available upon request'"
+                    <textarea id="references" rows="3" placeholder="Provide references or write 'Available upon request'"
                       class="block w-full px-5 py-3.5 rounded-xl border-2 border-gray-200 shadow-sm focus:border-primary-400 focus:ring-primary-300 text-base"></textarea>
                   </div>
                 </div>

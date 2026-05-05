@@ -37,7 +37,7 @@ export function Dashboard(userData = {}) {
           </div>
 
           <!-- Navigation Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <!-- CV Generator Card -->
             <button id="go-cv-generator" class="group bg-white rounded-2xl p-8 border border-gray-200 shadow-sm hover:shadow-xl hover:border-primary-300 transition-all duration-300 text-left">
               <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -49,6 +49,23 @@ export function Dashboard(userData = {}) {
               <p class="text-gray-600 mb-4">Create a professional, AI-powered CV tailored to your experience and target role.</p>
               <div class="flex items-center text-primary-600 font-semibold group-hover:gap-3 transition-all">
                 <span>Create CV</span>
+                <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+              </div>
+            </button>
+
+            <!-- Continue CV Card -->
+            <button id="go-cv-results" class="group bg-white rounded-2xl p-8 border border-gray-200 shadow-sm hover:shadow-xl hover:border-primary-300 transition-all duration-300 text-left">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-3-9v18m9-9A9 9 0 113 12a9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Continue CV</h3>
+              <p class="text-gray-600 mb-4">Open your latest generated CV and continue editing where you left off.</p>
+              <div class="flex items-center text-primary-600 font-semibold group-hover:gap-3 transition-all">
+                <span>My CV</span>
                 <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                 </svg>
