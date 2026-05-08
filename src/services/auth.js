@@ -3,7 +3,8 @@ import { auth, db } from '../config/firebase.js';
 import { 
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signOut
+  signOut,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 
@@ -69,6 +70,16 @@ export async function handleSignIn(email, password) {
     return userCredential.user; // Successfully signed in
   } catch (error) {
     console.error('Sign in error:', error);
+    throw new Error(getAuthErrorMessage(error));
+  }
+}
+
+// Sends a password reset email via Firebase
+export async function handleForgotPassword(email) {
+  try {
+    await sendPasswordResetEmail(auth, email);
+  } catch (error) {
+    console.error('Password reset error:', error);
     throw new Error(getAuthErrorMessage(error));
   }
 }

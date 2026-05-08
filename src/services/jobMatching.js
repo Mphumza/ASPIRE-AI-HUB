@@ -11,21 +11,12 @@ const FIELD_KEYWORDS = {
   engineering: 'engineering engineer',
   computer_science: 'software developer IT technology programming',
   creative_arts: 'creative design media arts',
-<<<<<<< HEAD
-  teaching: 'teacher education teaching tutor',
-  admin: 'administration office administrative Business management',
-  healthcare: 'healthcare medical',
-  marketing: 'marketing brand digital',
-  finance: 'finance accounting Supply chain logistics',
-  construction: 'construction building Quantity surveyor civil structural',
-=======
   teaching: 'teacher education teaching ',
   admin: 'administration office administrative Business management',
   healthcare: 'healthcare medical',
   marketing: 'marketing brand digital',
   finance: 'finance accounting',
   construction: 'construction building ',
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
   hospitality: 'hospitality hotel restaurant',
 };
 
@@ -39,13 +30,8 @@ const CV_TYPE_KEYWORDS = {
   academic: 'graduate research entry level',
 };
 
-<<<<<<< HEAD
-const APP_ID = import.meta.env.VITE_ADZUNA_APP_ID;
-const ADZUNA_KEY = import.meta.env.VITE_ADZUNA_APP_KEY;
-=======
 const APP_ID = import.meta.env.VITE_ADZUNA_APP_ID || '50f33641';
 const ADZUNA_KEY = import.meta.env.VITE_ADZUNA_APP_KEY || '41178ebea8323e7b56402fad09f73ef4';
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
 const ADZUNA_COUNTRY = import.meta.env.VITE_ADZUNA_COUNTRY || 'za';
 const MAX_WHAT_LENGTH = 220;
 const MAX_CV_SNIPPET = 600;
@@ -219,12 +205,6 @@ function normalizeAdzunaJob(job) {
 
 /** Fetch jobs from Adzuna (South Africa by default) */
 export async function fetchAdzunaJobs(what, resultsPerPage = 30) {
-<<<<<<< HEAD
-  if (!APP_ID || !ADZUNA_KEY) {
-    throw new Error('Adzuna API credentials are not configured. Please set VITE_ADZUNA_APP_ID and VITE_ADZUNA_APP_KEY in your .env file.');
-  }
-=======
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
   const query = (what || 'jobs').trim() || 'jobs';
   const n = Math.min(Math.max(resultsPerPage, 5), 50);
   const url = `https://api.adzuna.com/v1/api/jobs/${ADZUNA_COUNTRY}/search/1?app_id=${APP_ID}&app_key=${ADZUNA_KEY}&results_per_page=${n}&what=${encodeURIComponent(query)}`;

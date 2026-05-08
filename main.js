@@ -7,13 +7,10 @@ import { CVGenerator } from './src/pages/CVGenerator.js';
 import { CVResult, downloadCVAsPDF } from './src/pages/CVResult.js';
 import { JobMatches } from './src/pages/JobMatches.js';
 import { InterviewPrep } from './src/pages/InterviewPrep.js';
-import { LoginForm, RegisterForm } from './src/components/AuthForms.js';
-import { handleSignIn, handleSignUp, handleSignOut } from './src/services/auth.js';
+import { LoginForm, RegisterForm, ForgotPasswordForm } from './src/components/AuthForms.js';
+import { handleSignIn, handleSignUp, handleSignOut, handleForgotPassword } from './src/services/auth.js';
 import { generateCV, convertMarkdownToHTML, saveCV, updateCV } from './src/services/cv.js';
-<<<<<<< HEAD
-=======
 import { getRecommendedJobs } from './src/services/jobMatching.js';
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
 import {
   generateInterviewQuestions,
   evaluateAnswer,
@@ -43,8 +40,6 @@ let isLoading = false;
 let currentUserData = null;
 let authInitialized = false;
 
-<<<<<<< HEAD
-=======
 const PAGE_TO_PATH = {
   landing: '/',
   dashboard: '/dashboard',
@@ -83,7 +78,6 @@ function hydratePageFromPath() {
   currentPage = PATH_TO_PAGE[normalizedPath] || 'landing';
 }
 
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
 // ── State persistence (survives page refresh) ────────────────────────────────
 const STORAGE_CV_KEY = 'ispani_cv';
 const STORAGE_JOBS_KEY = 'ispani_jobs';
@@ -120,11 +114,7 @@ function loadPersistedState() {
 }
 
 function clearPersistedState() {
-<<<<<<< HEAD
   localStorage.removeItem(STORAGE_CV_KEY);
-  localStorage.removeItem(STORAGE_JOBS_KEY);
-}
-=======
   localStorage.removeItem(STORAGE_JOBS_KEY);
 }
 
@@ -157,7 +147,6 @@ async function ensureJobMatchesForCurrentCV() {
     return false;
   }
 }
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Loading overlay component
@@ -271,10 +260,6 @@ async function handlePaymentReturn() {
     if (!alreadySubscribed) {
       await activateSubscription();
       currentUserData = await getUserUsage();
-<<<<<<< HEAD
-      currentPage = 'account-settings';
-=======
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
       showToast('Subscription activated! Welcome to Premium!', 'success');
     }
   } catch (err) {
@@ -324,11 +309,7 @@ function showSubscriptionModal(feature = 'CV generation') {
       </div>
       
       <div class="flex flex-col gap-3">
-<<<<<<< HEAD
-        <a href="${paymentLink}"
-=======
         <a href="${paymentLink}" target="_blank" rel="noopener noreferrer"
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
           class="w-full bg-gradient-to-r from-primary-500 via-primary-600 to-accent-500 text-white py-4 px-8 rounded-xl font-bold text-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 inline-block">
           Subscribe Now
         </a>
@@ -532,6 +513,32 @@ function initializeEventListeners() {
       modal.querySelector('#show-register').addEventListener('click', () => {
         modal.remove();
         signupBtn.click();
+      });
+
+      modal.querySelector('#show-forgot-password').addEventListener('click', () => {
+        modal.remove();
+        const forgotModal = showAuthModal(ForgotPasswordForm());
+        const forgotForm = forgotModal.querySelector('#forgot-password-form');
+        forgotForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = forgotForm.querySelector('button[type="submit"]');
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<span class="flex items-center justify-center gap-2"><svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>Sending...</span>';
+          try {
+            const email = forgotForm.querySelector('#forgot-email').value;
+            await handleForgotPassword(email);
+            forgotModal.remove();
+            showToast('Password reset email sent! Check your inbox.', 'success');
+          } catch (error) {
+            showToast(error.message, 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Send Reset Link';
+          }
+        });
+        forgotModal.querySelector('#show-login-from-forgot').addEventListener('click', () => {
+          forgotModal.remove();
+          loginBtn.click();
+        });
       });
     });
   }
@@ -795,11 +802,7 @@ function initializeEventListeners() {
     });
   }
 
-<<<<<<< HEAD
-  /*const saveCvBtn = document.getElementById('save-cv');
-=======
   const saveCvBtn = document.getElementById('save-cv');
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
   if (saveCvBtn) {
     saveCvBtn.addEventListener('click', () => {
       const editable = document.getElementById('editable-cv');
@@ -818,12 +821,7 @@ function initializeEventListeners() {
       generatedCV.editedHtml = html;
       generatedCV.html = html;
 
-<<<<<<< HEAD
-      // Persist locally and sync to Firestore if we have a document ID
-      persistState();
-=======
       // Keep "last generated CV" storage stable; only AI generation overwrites it.
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
       if (generatedCV.firestoreId) {
         updateCV(generatedCV.firestoreId, html).catch(err =>
           console.warn('Could not sync CV edit to Firestore:', err?.message)
@@ -835,11 +833,7 @@ function initializeEventListeners() {
       renderPage();
     });
   }
-<<<<<<< HEAD
-*/
-=======
 
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
   const resetCvBtn = document.getElementById('reset-cv');
   if (resetCvBtn) {
     resetCvBtn.addEventListener('click', () => {
@@ -908,8 +902,6 @@ function initializeEventListeners() {
     });
   }
 
-<<<<<<< HEAD
-=======
   const goCVResultsBtn = document.getElementById('go-cv-results');
   if (goCVResultsBtn) {
     goCVResultsBtn.addEventListener('click', () => {
@@ -918,7 +910,6 @@ function initializeEventListeners() {
     });
   }
 
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
   const goInterviewPrepBtn = document.getElementById('go-interview-prep');
   if (goInterviewPrepBtn) {
     goInterviewPrepBtn.addEventListener('click', async () => {
@@ -985,14 +976,10 @@ function initializeEventListeners() {
 
   const goJobSearchBtn = document.getElementById('go-job-search');
   if (goJobSearchBtn) {
-<<<<<<< HEAD
-    goJobSearchBtn.addEventListener('click', () => {
-=======
     goJobSearchBtn.addEventListener('click', async () => {
       if (!jobMatches || !jobMatches.length) {
         await ensureJobMatchesForCurrentCV();
       }
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
       if (jobMatches && jobMatches.length > 0) {
         currentPage = 'job-matches';
         renderPage();
@@ -1134,11 +1121,6 @@ function initializeEventListeners() {
 // Initialize the app
 
 document.addEventListener('DOMContentLoaded', () => {
-<<<<<<< HEAD
-  // Restore CV/job state from previous session before first render
-  loadPersistedState();
-
-=======
   hydratePageFromPath();
 
   // Restore CV/job state from previous session before first render
@@ -1149,18 +1131,14 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPage();
   });
 
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
   // Show loading while checking auth
   renderPage();
 
   auth.onAuthStateChanged(async (user) => {
     if (user) {
-<<<<<<< HEAD
-=======
       // Restore last generated CV for resume flow after re-login.
       loadPersistedState();
 
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
       // Fetch user data when logged in
       try {
         currentUserData = await getUserUsage();

@@ -37,11 +37,7 @@ export function Dashboard(userData = {}) {
           </div>
 
           <!-- Navigation Cards -->
-<<<<<<< HEAD
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-=======
           <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
             <!-- CV Generator Card -->
             <button id="go-cv-generator" class="group bg-white rounded-2xl p-8 border border-gray-200 shadow-sm hover:shadow-xl hover:border-primary-300 transition-all duration-300 text-left">
               <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -59,8 +55,6 @@ export function Dashboard(userData = {}) {
               </div>
             </button>
 
-<<<<<<< HEAD
-=======
             <!-- Continue CV Card -->
             <button id="go-cv-results" class="group bg-white rounded-2xl p-8 border border-gray-200 shadow-sm hover:shadow-xl hover:border-primary-300 transition-all duration-300 text-left">
               <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -78,7 +72,6 @@ export function Dashboard(userData = {}) {
               </div>
             </button>
 
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
             <!-- Interview Prep Card -->
             <button id="go-interview-prep" class="group bg-white rounded-2xl p-8 border border-gray-200 shadow-sm hover:shadow-xl hover:border-accent-300 transition-all duration-300 text-left">
               <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">

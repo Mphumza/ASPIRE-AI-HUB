@@ -105,11 +105,7 @@ export async function canGenerateCV() {
     }
     
     // Check free tier limit
-<<<<<<< HEAD
-    const cvCount = userData.usage?.cvGenerations || 1;
-=======
     const cvCount = userData.usage?.cvGenerations || 0;
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
     if (cvCount < FREE_CV_GENERATIONS) {
       return { 
         allowed: true, 
@@ -142,11 +138,7 @@ export async function canUseInterviewCoaching() {
     }
     
     // Check free tier limit
-<<<<<<< HEAD
-    const sessionCount = userData.usage?.interviewSessions || 1;
-=======
     const sessionCount = userData.usage?.interviewSessions || 0;
->>>>>>> d2943637aca526cfbc67d2059641bb8d25dbd8a1
     if (sessionCount < FREE_INTERVIEW_SESSIONS) {
       return { 
         allowed: true, 
